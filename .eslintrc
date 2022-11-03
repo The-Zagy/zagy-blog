@@ -1,0 +1,28 @@
+
+    {
+        "root": true,
+        "plugins": [
+          "prettier",
+          "@typescript-eslint"
+        ],
+        "extends": [
+          "eslint:recommended",
+          "prettier",
+          "plugin:@typescript-eslint/recommended"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "rules": {
+          "prettier/prettier": 2 ,
+          "no-use-before-define": ["error", { "functions": true, "classes": true }],
+          "no-var": "error",
+          "prefer-const": "error"
+        },
+        "parserOptions": {
+          "ecmaVersion": 2021
+        },
+        "env": {
+          "node": true,
+          "es6": true
+        }
+    }
+    
