@@ -1,9 +1,0 @@
-
-{
-    "verbose":true,
-    "transform":{},
-    "testEnvironment": "node",
-    "moduleFileExtensions": [ "js", "jsx", "json", "node"],
-    "modulePathIgnorePatterns": ["<rootDir>/src/","node_modules"]
-}
-    
