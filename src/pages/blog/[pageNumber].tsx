@@ -2,6 +2,8 @@ import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import React from 'react';
+import Head from 'next/head'
+
 import { prisma } from '../../server/db/client';
 import { AsyncReturnType } from '../../utils/ts-bs';
 const getAllPosts = async (start: number, count: number) => {
@@ -40,16 +42,50 @@ const getPostsCount = async () => {
     const count = await prisma.post.count()
     return count;
 }
+const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
+    let list = [];
+    let rightEplises = false;
+    let rightBound;
+    let leftElipses = false;
+    let leftBound;
+    if (pageCount - currentPage > 4) {
+        rightBound = currentPage + 2;
+        rightEplises = true;
+    }
+    else rightBound = pageCount;
+    if (currentPage > 4) {
+        leftElipses = true;
+        leftBound = currentPage - 2;
+    }
+    else leftBound = 1;
+    for (let i = leftBound; i <= rightBound; i++) {
+        list.push(<li className={clsx({ "border-b-2 border-b-blue-600 text-blue-600": i === currentPage })}>{<Link href={`/blog/${i}`}>{i}</Link>}</li>)
+    }
+    if (leftElipses) {
+        list.unshift(<li>...</li>);
+        list.unshift(<li><Link href={`/blog/1`}>1</Link></li>)
+    }
+    if (rightEplises) {
+        list.push(<li>...</li>);
+        list.push(<li><Link href={`/blog/${pageCount}`}>{pageCount}</Link></li>)
+    }
+    return (
+        <>
+            {list}
+        </>
+    )
+}
 const PostCard: React.FC<PostData & { big: boolean }> = ({ image, author, title, tags, createdAt, breif, big }) => {
     console.log(author)
     return (
+
         <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
             <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
                 <img src={author.image} className="rounded-full w-8 h-8" />
                 <address className='font-bold text-gray-700 text-sm'><Link href="" rel="author">{author.name}</Link></address>
             </div>
             <header>
-                {<h2 className={clsx('font-bold group-hover:text-blue-500', { "text-6xl": big }, { "text-xl": !big })}><Link href="">{title}</Link></h2>}
+                {<h2 className={clsx('font-bold group-hover:text-blue-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}><Link href="">{title}</Link></h2>}
             </header>
 
             <div className='flex flex-row flex-wrap gap-2'>
@@ -78,11 +114,23 @@ const PostsHome: React.FC<{
 }> = ({ posts, count, pageNumber }) => {
 
     return (
-        <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
-            posts.map((post, i) => {
-                return (<PostCard {...post} big={i === 0 || i === 7} />)
-            })}
-        </section>
+        <>
+            <Head>
+
+            </Head>
+            <div>
+                <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
+                    posts.map((post, i) => {
+                        return (<PostCard {...post} big={i === 0 || i === 7} />)
+                    })}
+                </section>
+                <nav>
+                    <ul className='flex flex-row list-none gap-2 text-gray-600 font-semibold m-auto items-center justify-center'>
+                        <Pages pageCount={count} currentPage={pageNumber} />
+                    </ul>
+                </nav>
+            </div>
+        </>
     )
 }
 export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
@@ -94,20 +142,26 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
 }
 export async function getStaticProps({ params }: { params: { pageNumber: string } }) {
     let { pageNumber } = params;
-    console.log(pageNumber)
-    let posts = await getAllPosts(+pageNumber * 12, 12);
+    let numPageNumber = Number(pageNumber) - 1;
+    if (Number.isNaN(numPageNumber) || numPageNumber < 0) {
+        return {
+            notFound: true
+        }
+    }
+
+    let posts = await getAllPosts(numPageNumber * 12, 12);
     if (posts.length === 0) {
         return {
             notFound: true
         }
     }
-    let count = await getPostsCount()
+    let count = Math.ceil(await getPostsCount() / 12);
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
             posts: JSON.parse(JSON.stringify(posts)),
             count,
-            pageNumber
+            pageNumber: numPageNumber + 1
         },
         revalidate: DAY_IN_SECONDS / 24
     }

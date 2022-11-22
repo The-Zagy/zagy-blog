@@ -13,7 +13,7 @@ async function main() {
         const email = faker.internet.email();
         const user = await prisma.user.upsert({
             where: {
-                email: email  
+                email: email
             },
             update: {},
             create: {
@@ -24,7 +24,7 @@ async function main() {
                 email: email,
                 password: faker.internet.password(),
                 image: faker.internet.avatar(),
-                role: i == 0? "USER": "ADMIN"
+                role: i == 0 ? "USER" : "ADMIN"
             }
         })
         if (i == 1) admin = user;
@@ -44,7 +44,7 @@ async function main() {
         tagsId.push(tag.id);
     }
     function randTags() {
-        interface  Create  {
+        interface Create {
             assignedAt: Date;
             tag: {
                 connect: {
@@ -52,11 +52,11 @@ async function main() {
                 }
             }
         }
-        let tags={
+        let tags = {
             create: new Array<Create>()
         };
-        for(let i=0;i<rand(0,tagsId.length);i++){
-            let randomTag = tagsId[rand(0,tagsId.length-1)];
+        for (let i = 0; i < rand(0, tagsId.length); i++) {
+            let randomTag = tagsId[rand(0, tagsId.length - 1)];
             if (tags.create.find((itm) => {
                 return itm.tag.connect.id == randomTag;
             })) continue;
@@ -65,35 +65,35 @@ async function main() {
                     assignedAt: new Date(),
                     tag: {
                         connect: {
-                        id: randomTag as string,
-                    },
+                            id: randomTag as string,
+                        },
                     },
                 },
             )
         }
         return tags;
     }
-    for (let i = 0; i < 50; ++i) {
+    for (let i = 0; i < 500; ++i) {
         let tags = randTags()
         const post = await prisma.post.create({
             data: {
                 title: faker.commerce.productName(),
-                breif: faker.lorem.paragraph(1),
+                breif: faker.lorem.sentences(1),
                 image: faker.image.imageUrl(),
                 content: faker.lorem.paragraph(rand(20, 50)),
-                tags:tags,
-                authorId:admin?.id as string, 
+                tags: tags,
+                authorId: admin?.id as string,
             }
         })
     }
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect()
-  })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    .then(async () => {
+        await prisma.$disconnect()
+    })
+    .catch(async (e) => {
+        console.error(e)
+        await prisma.$disconnect()
+        process.exit(1)
+    })
