@@ -124,10 +124,22 @@ const PostsHome: React.FC<{
                         return (<PostCard {...post} big={i === 0 || i === 7} />)
                     })}
                 </section>
-                <nav>
-                    <ul className='flex flex-row list-none gap-2 text-gray-600 font-semibold m-auto items-center justify-center'>
+                <nav className='flex m-auto justify-center items-center gap-5'>
+                    {
+                        pageNumber !== 1 &&
+                        <button className='border-2 border-gray-400 px-2 py-1 rounded-full'>
+                            <Link href={`/blog/${pageNumber - 1}`}>Previous Page</Link>
+                        </button>
+                    }
+                    <ul className='flex flex-row list-none gap-2 text-gray-600 font-semibold items-center justify-center'>
                         <Pages pageCount={count} currentPage={pageNumber} />
                     </ul>
+                    {
+                        pageNumber !== count &&
+                        <button className='border-2 border-gray-400 px-2 py-1 rounded-full'>
+                            <Link href={`/blog/${pageNumber + 1}`}>Next Page</Link>
+                        </button>
+                    }
                 </nav>
             </div>
         </>
