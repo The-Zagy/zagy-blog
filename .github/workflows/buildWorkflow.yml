@@ -14,5 +14,5 @@ jobs:
         with:
           node-version: 18
       - run: node --version
-      - run: npm --version
+      - run: npm install
       - run: npm run lint
