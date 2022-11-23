@@ -1,4 +1,4 @@
-import { AppProps, type AppType } from "next/app";
+import { AppProps } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { trpc } from "../utils/trpc";
@@ -32,6 +32,6 @@ function MyApp({
       </ThemeProvider>
     </SessionProvider>
   );
-};
+}
 
 export default trpc.withTRPC(MyApp);
