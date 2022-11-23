@@ -3,7 +3,7 @@ import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import React from 'react';
 import Head from 'next/head'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { prisma } from '../../server/db/client';
 import { AsyncReturnType } from '../../utils/ts-bs';
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
@@ -88,7 +88,7 @@ const PostCard: React.FC<PostData & { big: boolean }> =
 
             <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                    <Image alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
+                    <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
                     {/* Todo add author profile link */}
                     <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author.name}</Link></address>
                 </div>
