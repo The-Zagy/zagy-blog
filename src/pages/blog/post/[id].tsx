@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next';
 import { prisma } from '../../../server/db/client';
 import { AsyncReturnType } from '../../../utils/ts-bs';
+import { isValidDateString } from '../../../utils/date';
 async function getPost(id: string) {
     const post = await prisma.post.findUniqueOrThrow({
         where: {
@@ -29,7 +30,7 @@ const UserCard: React.FC<{userName: string, userImage: string, createdAt: Date}>
         </div>
         <div className={"postDate flex-col"} >
             <span className="font-thin">Posted On</span>
-            <p>{Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(Date.parse(createdAt))}</p>
+            {isValidDateString(createdAt.toString()) && <time className='block'>{Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(createdAt))}</time>} 
         </div>
         </div>
     );
