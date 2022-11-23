@@ -34,6 +34,9 @@ const getAllPosts = async (start: number, count: number) => {
                 }
             },
             breif: true,
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     })
     return posts;

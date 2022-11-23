@@ -73,14 +73,14 @@ async function main() {
         }
         return tags;
     }
-    for (let i = 0; i < 500; ++i) {
+    for (let i = 0; i < 10; ++i) {
         let tags = randTags()
         const post = await prisma.post.create({
             data: {
                 title: faker.commerce.productName(),
                 breif: faker.lorem.sentences(1),
                 image: faker.image.imageUrl(),
-                content: faker.lorem.paragraph(rand(20, 50)),
+                content: faker.lorem.paragraphs(rand(10, 15)),
                 tags: tags,
                 authorId: admin?.id as string,
             }
