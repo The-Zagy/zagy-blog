@@ -6,11 +6,13 @@ import Head from 'next/head'
 
 import { prisma } from '../../server/db/client';
 import { AsyncReturnType } from '../../utils/ts-bs';
+const NUMBER_OF_POSTS_IN_A_PAGE = 12;
 const getAllPosts = async (start: number, count: number) => {
     const posts = await prisma.post.findMany({
         skip: start,
         take: count,
         select: {
+            id: true,
             image: true,
             title: true,
             tags: {
@@ -75,38 +77,42 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
         </>
     )
 }
-const PostCard: React.FC<PostData & { big: boolean }> = ({ image, author, title, tags, createdAt, breif, big }) => {
-    console.log(author)
-    return (
+const PostCard: React.FC<PostData & { big: boolean, pageNumber: number, postNumber: number }> =
+    ({ image, author, title, tags, createdAt, breif, id, big, pageNumber, postNumber }) => {
+        console.log(author)
+        return (
 
-        <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
-            <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
-                <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href="" rel="author">{author.name}</Link></address>
-            </div>
-            <header>
-                {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}><Link href="">{title}</Link></h2>}
-            </header>
+            <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
+                <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
+                    <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
+                    {/* Todo add author profile link */}
+                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author.name}</Link></address>
+                </div>
+                <header>
+                    {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>
+                        <Link href={`/blog/post/${title.split(" ").join("-") + "-" + id}`}>{title}</Link>
+                    </h2>}
+                </header>
 
-            <div className='flex flex-row flex-wrap gap-2'>
-                {tags.map((tag => {
-                    return (
-                        <div className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
-                    )
-                }))}
-            </div>
-            {
-                big && <>
-                    <p className='text-gray-600  dark:text-dark-text-600 text-xl'>
-                        {breif + "..."}
-                    </p>
-                    <button className='rounded-full w-auto self-start py-1 px-3 border-2 font-semibold border-blue-500 dark:border-dark-primary-500 '>
-                        Continue Reading
-                    </button>
-                </>
-            }
-        </article>)
-}
+                <div className='flex flex-row flex-wrap gap-2'>
+                    {tags.map((tag => {
+                        return (
+                            <div className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
+                        )
+                    }))}
+                </div>
+                {
+                    big && <>
+                        <p className='text-gray-600  dark:text-dark-text-600 text-xl'>
+                            {breif + "..."}
+                        </p>
+                        <button className='rounded-full w-auto self-start py-1 px-3 border-2 font-semibold border-blue-500 dark:border-dark-primary-500 '>
+                            Continue Reading
+                        </button>
+                    </>
+                }
+            </article>)
+    }
 const PostsHome: React.FC<{
     posts: PostData[],
     count: number,
@@ -121,7 +127,7 @@ const PostsHome: React.FC<{
             <div>
                 <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
                     posts.map((post, i) => {
-                        return (<PostCard {...post} big={i === 0 || i === 7} />)
+                        return (<PostCard {...post} big={i === 0 || i === 7} pageNumber={pageNumber} postNumber={i} />)
                     })}
                 </section>
                 <nav className='flex m-auto justify-center items-center gap-5'>
@@ -161,13 +167,13 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
         }
     }
 
-    let posts = await getAllPosts(numPageNumber * 12, 12);
+    let posts = await getAllPosts(numPageNumber * NUMBER_OF_POSTS_IN_A_PAGE, NUMBER_OF_POSTS_IN_A_PAGE);
     if (posts.length === 0) {
         return {
             notFound: true
         }
     }
-    let count = Math.ceil(await getPostsCount() / 12);
+    let count = Math.ceil(await getPostsCount() / NUMBER_OF_POSTS_IN_A_PAGE);
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
