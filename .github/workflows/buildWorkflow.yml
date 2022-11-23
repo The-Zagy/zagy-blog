@@ -2,7 +2,7 @@ name: workFlow
 run-name: ${{ github.actor }} is pushing
 on:
   push:
-    branches: [ main ]
+    branches: [ test ]
   pull_request:
     branches: [ main ]
 env:
