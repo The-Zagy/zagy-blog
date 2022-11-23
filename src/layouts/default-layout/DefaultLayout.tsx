@@ -7,7 +7,7 @@ export default function DefaultLayout({ children }: { children: React.ReactNode 
     return (
         <div>
             <Navbar />
-            <main className="dark:bg-dark-main-200">
+            <main className="dark:bg-dark-background-500 dark:text-dark-text-500">
                 {children}
             </main>
             <Footer />

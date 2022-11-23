@@ -79,28 +79,28 @@ const PostCard: React.FC<PostData & { big: boolean }> = ({ image, author, title,
     console.log(author)
     return (
 
-        <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-secondaryVariant1-200 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
+        <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
             <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                <img src={author.image} className="rounded-full w-8 h-8 " />
-                <address className='font-bold text-gray-700 text-sm dark:text-gray-200'><Link href="" rel="author">{author.name}</Link></address>
+                <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
+                <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href="" rel="author">{author.name}</Link></address>
             </div>
             <header>
-                {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondaryVariant1-200 dark:hover:text-dark-secondaryVariant1-200', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}><Link href="">{title}</Link></h2>}
+                {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}><Link href="">{title}</Link></h2>}
             </header>
 
             <div className='flex flex-row flex-wrap gap-2'>
                 {tags.map((tag => {
                     return (
-                        <div className=' w-auto px-2 cursor-pointer dark:bg-dark-secondary-200 dark:text-gray-200 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
+                        <div className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
                     )
                 }))}
             </div>
             {
                 big && <>
-                    <p className='text-gray-600 dark:text-gray-200 text-xl'>
+                    <p className='text-gray-600  dark:text-dark-text-600 text-xl'>
                         {breif + "..."}
                     </p>
-                    <button className='rounded-full w-auto self-start py-1 px-3 border-2 font-semibold border-blue-500 '>
+                    <button className='rounded-full w-auto self-start py-1 px-3 border-2 font-semibold border-blue-500 dark:border-dark-primary-500 '>
                         Continue Reading
                     </button>
                 </>
