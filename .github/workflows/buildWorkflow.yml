@@ -2,7 +2,7 @@ name: workFlow
 run-name: ${{ github.actor }} is pushing
 on:
   push:
-    branches: [ test ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 env:
@@ -13,7 +13,7 @@ env:
   DISCORD_CLIENT_SECRET: ${{secrets.DISCORD_CLIENT_SECRET}}
 
 jobs:
-  Explore-GitHub-Actions:
+  linter:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,3 +23,20 @@ jobs:
       - run: node --version
       - run: npm install --force
       - run: npm run lint
+  lhci:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: npm install, build
+        run: |
+          npm install --force
+          npm run build
+      - name: run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
