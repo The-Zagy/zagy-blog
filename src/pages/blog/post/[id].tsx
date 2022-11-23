@@ -1,53 +1,76 @@
-const UserCard = () => {
+import { useRouter } from 'next/router';
+import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next';
+import { prisma } from '../../../server/db/client';
+import { AsyncReturnType } from '../../../utils/ts-bs';
+async function getPost(id: string) {
+    const post = await prisma.post.findUniqueOrThrow({
+        where: {
+            id
+        },
+        include: {
+            author: {
+                select: {
+                    userName: true,
+                    image: true
+                }
+            }
+        }
+    });
+    return post;
+}
+type PostData = AsyncReturnType<typeof getPost>;
+const UserCard: React.FC<{userName: string, userImage: string, createdAt: Date}> = ({userName, userImage, createdAt}) => {
     return (
-        <div className="flex gap-6">
-        <img src={"https://via.placeholder.com/50x50"} alt={"userPic"} className={"rounded-full w-15 h-15"} />
+        <div className="userCard flex gap-6">
+        <img src={userImage} alt={"userPic"} className={"rounded-full w-12 h-12"} />
         <div className={"authorName flex-col"} >
             <span className={"font-thin"}>Written By</span>
-            <p>Nagy Nabil</p>
+            <p>{userName}</p>
         </div>
         <div className={"postDate flex-col"} >
             <span className="font-thin">Posted On</span>
-            <p>October 4, 2022</p>
+            <p>{Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(Date.parse(createdAt))}</p>
         </div>
         </div>
     );
 }
-const PostHeader = () => {
+const PostHeader: React.FC<{post: PostData}> = ({post}) => {
     return (
-        <div className={"flex flex-col gap-y-3  items-center justify-center "}>
-            <h1 className="text-center text-4xl ">Want Someone to Keep Reading Your Blog Post? A Guide to Get Readers Glued to the Screen</h1>
-            <UserCard />
-            <img src={"https://via.placeholder.com/500x200"} alt="postImage" className="w-4/6" />
+        <div className={"w-full flex flex-col gap-y-4  items-center justify-center "}>
+            <h1 className="text-center text-7xl ">{post.title}</h1>
+            <UserCard userImage={post.author.image} userName={post.author.userName} createdAt={post.createdAt} />
+            <img src={post.image} alt="postImage" className="w-11/12 h-min" />
         </div>
     );
 }
-const Post = () => {
+const PostPage: React.FC<{post: PostData}> = ({post}) => {
     return (
-        <div className=" w-8/12 flex flex-col gap-y-6 items-center justify-center" >
-            <PostHeader />
-            <main className="postContent text-center font-light">
-                Typically, some sessions fly by and others quickly make you decide:
-
-“Now’s a good time to go to the bathroom and get a snack.”
-
-That thought’s also common during online conferences or webinars.
-
-While a number of factors influence whether you’re paying attention or daydreaming, a common reason for the Bathroom-Snack-Train-of-Thought is that the speaker didn’t make their presentation audience-focused.
-
-They didn’t distance themselves from their topic and find ways to make an audience member’s experience a fascinating one. The words they chose to lead with may have been relevant and informative, but they didn’t stir up the desire to keep listening.
-
-This scenario is directly related to your job as a content writer … how do you stir up the desire to keep reading?
-
-How to persuade someone to keep reading
-Content editors structure writing like a killer presentation.
-
-And how you shape that presentation determines whether someone wants to learn from you — or from someone else.
-
-“Action” in our writing introductions can take a variety of forms, but it’s one of the main elements of engaging writing that keeps a reader glued to the screen. When a reader has an “active” experience, rather than a “passive” experience, you stir up the desire to keep reading.
-
-Let’s look at three of these “Action Types” that help you avoid common content marketing mistakes. They place your reader front and center of the presentation that you’ve crafted for them.</main>  
+        <div className=" p-10 w-full  m-auto flex flex-col gap-y-10 items-center justify-center" >
+            <PostHeader post={post} />
+            <main className="postContent text-center font-light">{post.content}</main>  
         </div>
     );
 }
-export default Post;
+export default PostPage;
+export const getStaticPaths: GetStaticPaths<{slug: string}> = () => {
+    return {
+        paths: [],
+        fallback: 'blocking'
+    }
+}
+// function to parse page param and return post id from it
+function getPostId(param: string): string {
+    return param.split('-').splice(-5, 5).join('-');
+}
+export const getStaticProps: GetStaticProps =async ({params}) => {
+    if (params === undefined || typeof params.id !== "string" ) {
+        return {
+            notFound: true,
+        }
+    }
+    const id = getPostId(params.id);
+    const post =await getPost(id);
+    return {
+        props: { post: JSON.parse(JSON.stringify(post)) },
+    }
+}
