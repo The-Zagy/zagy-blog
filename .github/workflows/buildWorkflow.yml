@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: workFlow
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   push:
@@ -14,5 +14,5 @@ jobs:
         with:
           node-version: 18
       - run: node --version
-      - run: npm install
+      - run: npm install --force
       - run: npm run lint
