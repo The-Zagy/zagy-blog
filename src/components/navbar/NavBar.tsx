@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import ThemeSwtich from "../themeSwitch/ThemeSwitch";
 
 export default function Navbar() {
     return (
@@ -12,6 +13,7 @@ export default function Navbar() {
                 <Link href="">Link 2</Link>
                 <Link href="">Link 3</Link>
             </section>
+            <ThemeSwtich />
         </header>
     )
 

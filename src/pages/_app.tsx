@@ -5,7 +5,7 @@ import { trpc } from "../utils/trpc";
 import "../styles/globals.css";
 import DefaultLayout from "../layouts/default-layout/DefaultLayout";
 import React from "react";
-
+import { ThemeProvider } from "next-themes";
 export type CustomAppProps = AppProps<{ session: Session | null }> & {
   Component: AppProps["Component"] & {
     PageLayout?: React.ComponentType<{ children: React.ReactNode }>;
@@ -18,16 +18,18 @@ function MyApp({
 }: CustomAppProps) {
   return (
     <SessionProvider session={session}>
-      {
-        Component.PageLayout ?
-          <Component.PageLayout>
-            <Component {...pageProps} />
-          </Component.PageLayout>
-          :
-          <DefaultLayout>
-            <Component {...pageProps} />
-          </DefaultLayout>
-      }
+      <ThemeProvider attribute="class" >
+        {
+          Component.PageLayout ?
+            <Component.PageLayout>
+              <Component {...pageProps} />
+            </Component.PageLayout>
+            :
+            <DefaultLayout>
+              <Component {...pageProps} />
+            </DefaultLayout>
+        }
+      </ThemeProvider>
     </SessionProvider>
   );
 };
