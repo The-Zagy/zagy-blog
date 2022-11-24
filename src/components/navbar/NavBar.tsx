@@ -4,7 +4,7 @@ import ThemeSwtich from "../themeSwitch/ThemeSwitch";
 
 export default function Navbar() {
     return (
-        <header className=" px-20 items-center flex flex-row justify-between h-16">
+        <header className="w-full px-20 items-center flex flex-row justify-between h-16">
             <section className="text-3xl font-bold text-gray-700 select-none ">
                 ZAGY af
             </section>

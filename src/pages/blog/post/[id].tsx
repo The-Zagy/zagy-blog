@@ -1,8 +1,8 @@
-import { useRouter } from 'next/router';
-import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next';
+import { GetStaticPaths, GetStaticProps} from 'next';
 import { prisma } from '../../../server/db/client';
 import { AsyncReturnType } from '../../../utils/ts-bs';
 import { isValidDateString } from '../../../utils/date';
+// import Image from 'next/image'
 async function getPost(id: string) {
     const post = await prisma.post.findUniqueOrThrow({
         where: {
@@ -46,7 +46,7 @@ const PostHeader: React.FC<{post: PostData}> = ({post}) => {
 }
 const PostPage: React.FC<{post: PostData}> = ({post}) => {
     return (
-        <div className=" p-10 w-full  m-auto flex flex-col gap-y-10 items-center justify-center" >
+        <div className="p-10  h-screen  flex flex-col gap-y-10 items-center justify-start" >
             <PostHeader post={post} />
             <main className="postContent text-center font-light">{post.content}</main>  
         </div>

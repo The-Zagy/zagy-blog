@@ -12,7 +12,7 @@ const ThemeSwtich = () => {
         setMounted(true)
     }, [])
     if (!mounted) return null;
-    let checked = theme === "dark" ? true : false;
+    const checked = theme === "dark" ? true : false;
     return (
         <div>
 
