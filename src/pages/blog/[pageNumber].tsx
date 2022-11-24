@@ -1,9 +1,7 @@
 import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
-import { NextSeo } from 'next-seo';
-import React from 'react';
-import Head from 'next/head'
+import { CollectionPageJsonLd, NextSeo } from 'next-seo';
 import { prisma } from '../../server/db/client';
 import { AsyncReturnType } from '../../utils/ts-bs';
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
@@ -124,9 +122,23 @@ const PostsHome: React.FC<{
 
     return (
         <>
-            <NextSeo
-                title={`Zagy | Home page ${pageNumber}`}
-                description={`Zagy blog Home page number ${pageNumber}`}
+            <NextSeo title={`Zagy - Home page ${pageNumber}`} description={`Zagy Home page number ${pageNumber}`} />
+            <CollectionPageJsonLd
+                name={`Zagy | Home page ${pageNumber}`}
+                hasPart={
+                    posts.map(post => (
+                        {
+                            about: post.breif,
+                            author: post.author,
+                            name: post.title,
+                            datePublished: post.createdAt,
+                            audience: 'Programmers',
+                            keywords: post.title,
+                            thumbnailUrl: post.image,
+                            image: post.image,
+                        }
+                    ))
+                }
             />
             <div>
                 <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
@@ -166,7 +178,7 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
     const count = Math.ceil(await getPostsCount() / NUMBER_OF_POSTS_IN_A_PAGE);
     const { pageNumber } = params;
     const numPageNumber = Number(pageNumber) - 1;
-    if (Number.isNaN(numPageNumber) || numPageNumber < 0) {
+    if (!pageNumber || Number.isNaN(numPageNumber) || numPageNumber < 0) {
         return {
             notFound: true
         }
