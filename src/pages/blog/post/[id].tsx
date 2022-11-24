@@ -1,7 +1,8 @@
 import { GetStaticPaths, GetStaticProps} from 'next';
 import { prisma } from '../../../server/db/client';
 import { AsyncReturnType } from '../../../utils/ts-bs';
-import { isValidDateString } from '../../../utils/date';
+import { isValidDateString, dateFormat } from '../../../utils/date';
+import { ArticleJsonLd } from 'next-seo';
 // import Image from 'next/image'
 async function getPost(id: string) {
     const post = await prisma.post.findUniqueOrThrow({
@@ -30,7 +31,7 @@ const UserCard: React.FC<{userName: string, userImage: string, createdAt: Date}>
         </div>
         <div className={"postDate flex-col"} >
             <span className="font-thin">Posted On</span>
-            {isValidDateString(createdAt.toString()) && <time className='block'>{Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(createdAt))}</time>} 
+            {isValidDateString(createdAt.toString()) && <time className='block'>{dateFormat(createdAt)}</time>} 
         </div>
         </div>
     );
@@ -46,10 +47,20 @@ const PostHeader: React.FC<{post: PostData}> = ({post}) => {
 }
 const PostPage: React.FC<{post: PostData}> = ({post}) => {
     return (
+        <>
+        <ArticleJsonLd 
+            authorName={post.author.userName}
+            datePublished={dateFormat(post.createdAt)}
+            description={post.breif}
+            title={post.title}
+            images={[post.image]}
+            url={''}
+        />
         <div className="p-10  h-screen  flex flex-col gap-y-10 items-center justify-start" >
             <PostHeader post={post} />
             <main className="postContent text-center font-light">{post.content}</main>  
         </div>
+        </>
     );
 }
 export default PostPage;
