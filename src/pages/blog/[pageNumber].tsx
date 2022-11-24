@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
+import { NextSeo } from 'next-seo';
 import React from 'react';
 import Head from 'next/head'
-import Image from 'next/image'
 import { prisma } from '../../server/db/client';
 import { AsyncReturnType } from '../../utils/ts-bs';
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
@@ -85,10 +85,9 @@ const PostCard: React.FC<PostData & { big: boolean }> =
     ({ author, title, tags, breif, id, big, }) => {
         console.log(author)
         return (
-
             <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                    <Image alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
+                    <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
                     {/* Todo add author profile link */}
                     <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author.name}</Link></address>
                 </div>
@@ -97,7 +96,6 @@ const PostCard: React.FC<PostData & { big: boolean }> =
                         <Link href={`/blog/post/${title.split(" ").join("-") + "-" + id}`}>{title}</Link>
                     </h2>}
                 </header>
-
                 <div className='flex flex-row flex-wrap gap-2'>
                     {tags.map((tag => {
                         return (
@@ -115,7 +113,8 @@ const PostCard: React.FC<PostData & { big: boolean }> =
                         </button>
                     </>
                 }
-            </article>)
+            </article>
+        )
     }
 const PostsHome: React.FC<{
     posts: PostData[],
@@ -125,9 +124,10 @@ const PostsHome: React.FC<{
 
     return (
         <>
-            <Head>
-
-            </Head>
+            <NextSeo
+                title={`Zagy | Home page ${pageNumber}`}
+                description={`Zagy blog Home page number ${pageNumber}`}
+            />
             <div>
                 <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
                     posts.map((post, i) => {
