@@ -3,5 +3,5 @@ export function isValidDateString(date: string) {
     return _regExp.test(date);
 }
 export function dateFormat(date: Date): string {
-    return Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date));
+    return Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(new Date(date));
 }
