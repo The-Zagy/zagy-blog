@@ -1,51 +1,21 @@
 import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
-import { CollectionPageJsonLd, NextSeo } from 'next-seo';
-import { prisma } from '../../server/db/client';
-import { AsyncReturnType } from '../../utils/ts-bs';
+import { NextSeo } from 'next-seo';
+import { downloadDirList, downloadFileBySha } from '../../utils/mdx';
+import { bundleMDX } from 'mdx-bundler';
+type MdxMeta = {
+    title: string,
+    description: string,
+    data: string,
+    bannerUrl: string,
+    categories?: string[]
+    meta: {
+        keywords: string[],
+    }
+}
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
-const getAllPosts = async (start: number, count: number) => {
-    const posts = await prisma.post.findMany({
-        skip: start,
-        take: count,
-        select: {
-            id: true,
-            image: true,
-            title: true,
-            tags: {
-                select: {
-                    tag: {
-                        select: {
-                            name: true,
-                        }
-                    }
-                }
-            },
-            createdAt: true,
-            author: {
-                select: {
-                    name: true,
-                    image: true,
-                    userName: true,
 
-                }
-            },
-            breif: true,
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    })
-    return posts;
-}
-//eslint ignore
-type PostData = AsyncReturnType<typeof getAllPosts>[0]
-
-const getPostsCount = async () => {
-    const count = await prisma.post.count()
-    return count;
-}
 const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
     const list = [];
     let rightEplises = false;
@@ -79,9 +49,10 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
         </>
     )
 }
-const PostCard: React.FC<PostData & { big: boolean }> =
-    ({ author, title, tags, breif, id, big, }) => {
-        console.log(author)
+const PostCard: React.FC<MdxMeta & { big: boolean }> =
+    ({ title, categories = [], description, big, }) => {
+
+        const author = { name: "zaz", image: "https://as2.ftcdn.net/v2/jpg/03/31/69/91/1000_F_331699188_lRpvqxO5QRtwOM05gR50ImaaJgBx68vi.jpg" }
         return (
             <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
@@ -91,20 +62,20 @@ const PostCard: React.FC<PostData & { big: boolean }> =
                 </div>
                 <header>
                     {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>
-                        <Link href={`/blog/post/${title.split(" ").join("-") + "-" + id}`}>{title}</Link>
+                        <Link href={`/blog/post/${title.split(" ").join("-")}`}>{title}</Link>
                     </h2>}
                 </header>
                 <div className='flex flex-row flex-wrap gap-2'>
-                    {tags.map((tag => {
+                    {categories.map((tag => {
                         return (
-                            <div key={tag.tag.name} className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
+                            <div key={tag} className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag}</div>
                         )
                     }))}
                 </div>
                 {
                     big && <>
                         <p className='text-gray-600  dark:text-dark-text-600 text-xl'>
-                            {breif + "..."}
+                            {description + "..."}
                         </p>
                         <button className='rounded-full w-auto self-start py-1 px-3 border-2 font-semibold border-blue-500 dark:border-dark-primary-500 '>
                             Continue Reading
@@ -115,35 +86,17 @@ const PostCard: React.FC<PostData & { big: boolean }> =
         )
     }
 const PostsHome: React.FC<{
-    posts: PostData[],
     count: number,
+    mdPostsMeta: MdxMeta[],
     pageNumber: number
-}> = ({ posts, count, pageNumber }) => {
-
+}> = ({ count, mdPostsMeta, pageNumber }) => {
     return (
         <>
             <NextSeo title={`Zagy - Home page ${pageNumber}`} description={`Zagy Home page number ${pageNumber}`} />
-            <CollectionPageJsonLd
-                name={`Zagy | Home page ${pageNumber}`}
-                hasPart={
-                    posts.map(post => (
-                        {
-                            about: post.breif,
-                            author: post.author,
-                            name: post.title,
-                            datePublished: post.createdAt,
-                            audience: 'Programmers',
-                            keywords: post.title,
-                            thumbnailUrl: post.image,
-                            image: post.image,
-                        }
-                    ))
-                }
-            />
             <div>
                 <section className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-14 md:px-28'>{
-                    posts.map((post, i) => {
-                        return (<PostCard key={post.id} {...post} big={i === 0 || i === 7} />)
+                    mdPostsMeta.map((post, i) => {
+                        return (<PostCard key={post.title} {...post} big={i === 0 || i === 7} />)
                     })}
                 </section>
                 <nav className='flex m-auto justify-center items-center gap-5'>
@@ -175,7 +128,6 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
     }
 }
 export async function getStaticProps({ params }: { params: { pageNumber: string } }) {
-    const count = Math.ceil(await getPostsCount() / NUMBER_OF_POSTS_IN_A_PAGE);
     const { pageNumber } = params;
     const numPageNumber = Number(pageNumber) - 1;
     if (!pageNumber || Number.isNaN(numPageNumber) || numPageNumber < 0) {
@@ -183,18 +135,27 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-    const posts = await getAllPosts(numPageNumber * NUMBER_OF_POSTS_IN_A_PAGE, NUMBER_OF_POSTS_IN_A_PAGE);
-    if (posts.length === 0) {
-        return {
-            notFound: true
-        }
-    }
+    const mdPostsList = await downloadDirList("/src/content/blog");
+    const mdCount = Math.ceil(mdPostsList.length / NUMBER_OF_POSTS_IN_A_PAGE);
+    const take = NUMBER_OF_POSTS_IN_A_PAGE;
+    const skip = numPageNumber * NUMBER_OF_POSTS_IN_A_PAGE
+    const mdPosts = await Promise.all((mdPostsList.slice(skip, skip + take).map(async (file) => downloadFileBySha(file.sha))));
+    const mdPostsMeta = await Promise.all(mdPosts.map(async (post) => {
+        const { frontmatter }: { frontmatter: MdxMeta } = await bundleMDX({ source: post });
+        return (
+            {
+                ...frontmatter
+            }
+        )
+
+    }));
+
 
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
-            posts: JSON.parse(JSON.stringify(posts)),
-            count,
+            mdPostsMeta: JSON.parse(JSON.stringify(mdPostsMeta)),
+            count: mdCount,
             pageNumber: numPageNumber + 1
         },
         revalidate: DAY_IN_SECONDS / 24

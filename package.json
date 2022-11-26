@@ -28,6 +28,7 @@
     "@trpc/server": "10.0.0-rc.0",
     "clsx": "^1.2.1",
     "esbuild": "^0.15.15",
+    "front-matter": "^4.0.2",
     "mdx-bundler": "^9.0.1",
     "next": "13.0.1",
     "next-auth": "^4.15.0",

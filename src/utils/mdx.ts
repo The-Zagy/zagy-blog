@@ -1,15 +1,17 @@
 import { Octokit as createOctokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
+import { env } from '../env/server.mjs';
+import { AsyncReturnType } from './ts-bs';
+
 //Setup octakit with throttling plugin as recommended in the octakit documentation
 const Octokit = createOctokit.plugin(throttling)
-
 type ThrottleOptions = {
     method: string
     url: string
     request: { retryCount: number }
 }
 const octokit = new Octokit({
-    auth: process.env.BOT_GITHUB_TOKEN,
+    auth: env.BOT_GITHUB_TOKEN,
     throttle: {
         onRateLimit: (retryAfter: number, options: ThrottleOptions) => {
             console.warn(
@@ -29,10 +31,10 @@ const octokit = new Octokit({
 
 export async function downloadDirList(path: string) {
     const resp = await octokit.repos.getContent({
-        owner: 'kentcdodds',
-        repo: 'The-Zagy',
-        path
-
+        owner: 'The-Zagy',
+        repo: 'zagy-blog',
+        path,
+        ref: "MDX"
     })
     const data = resp.data
 
@@ -44,3 +46,14 @@ export async function downloadDirList(path: string) {
 
     return data
 }
+
+export async function downloadFileBySha(sha: string) {
+    const { data } = await octokit.git.getBlob({
+        owner: 'The-Zagy',
+        repo: 'zagy-blog',
+        file_sha: sha,
+    })
+    const encoding = data.encoding as Parameters<typeof Buffer.from>['1']
+    return Buffer.from(data.content, encoding).toString()
+}
+
