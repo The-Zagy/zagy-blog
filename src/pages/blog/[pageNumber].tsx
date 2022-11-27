@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
-import path from 'path';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
-import { contentDirCache, downloadFileBySha, Githubfile } from '../../utils/mdx';
-import { bundleMDX } from 'mdx-bundler';
+import GitHubFilesCache from '../../utils/mdx';
+import { getContributers } from '../../utils/mdx'
+import { AsyncReturnType } from '../../utils/ts-bs';
 type MdxMeta = {
     title: string,
     description: string,
@@ -15,27 +15,15 @@ type MdxMeta = {
     meta: {
         keywords: string[],
     }
+    contributers: AsyncReturnType<typeof getContributers>
 }
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
-const getAllPosts = async () => {
-    return await contentDirCache.getDirList();
-}
-const getPostsMeta = async (posts: Githubfile[], pageNum: number) => {
+const getPostsMeta = async (pageNum: number) => {
     const take = NUMBER_OF_POSTS_IN_A_PAGE;
     const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
-    const currentPageSignatures = posts.slice(skip, skip + take);
-    const actualPosts = await Promise.all(currentPageSignatures.map(async (file) => downloadFileBySha(file.sha)));
-    const postsMeta = await Promise.all(actualPosts.map(async (post, i) => {
-        const { frontmatter }: { frontmatter: MdxMeta } = await bundleMDX({ source: post });
-        return (
-            {
-                ...frontmatter,
-                slug: path.parse(currentPageSignatures[i]?.name as string).name
-            }
-        )
+    const posts = await GitHubFilesCache.getPosts();
+    return posts.slice(skip, skip + take);
 
-    }));
-    return postsMeta;
 }
 const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
     const list = [];
@@ -71,15 +59,14 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
     )
 }
 const PostCard: React.FC<MdxMeta & { big: boolean }> =
-    ({ title, categories = [], description, big, slug }) => {
-
-        const author = { name: "zaz", image: "https://as2.ftcdn.net/v2/jpg/03/31/69/91/1000_F_331699188_lRpvqxO5QRtwOM05gR50ImaaJgBx68vi.jpg" }
+    ({ title, contributers, categories = [], description, big, slug }) => {
+        const author = contributers?.author;
         return (
             <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                    <img alt={`The Author of the article: ${author.name}}`} src={author.image} className="rounded-full w-8 h-8 " />
+                    <img alt={`The Author of the article: ${author?.login}}`} src={author?.avatar_url} className="rounded-full w-8 h-8 " />
                     {/* Todo add author profile link */}
-                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author.name}</Link></address>
+                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author?.login}</Link></address>
                 </div>
                 <header>
                     {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>
@@ -156,13 +143,14 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-    const allPosts = await getAllPosts();
-    const count = Math.ceil(allPosts.length / NUMBER_OF_POSTS_IN_A_PAGE);
-    const postsMeta = await getPostsMeta(allPosts, numPageNumber);
+
+    const count = Math.ceil(await GitHubFilesCache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
+    const postsMeta = await getPostsMeta(numPageNumber);
+    console.log(postsMeta.length)
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
-            mdPostsMeta: JSON.parse(JSON.stringify(postsMeta)),
+            mdPostsMeta: JSON.parse(JSON.stringify(postsMeta.map(i => i.meta))),
             count,
             pageNumber: numPageNumber + 1
         },
