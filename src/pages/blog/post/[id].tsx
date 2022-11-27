@@ -6,10 +6,18 @@ import { isValidDateString, dateFormat } from '../../../utils/date';
 // import { ArticleJsonLd } from 'next-seo';
 import DisqusComments from '../../../components/disqus-comments/DisqusComments';
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
-import { downloadFileBySha } from '../../../utils/mdx';
+import { contentDirCache, downloadFileBySha } from '../../../utils/mdx';
 import { bundleMDX } from 'mdx-bundler';
+import path from 'path';
 async function getPost(id: string) {
-    const { code, frontmatter } = await bundleMDX({ source: await downloadFileBySha(id) });
+    const allPosts = await contentDirCache.getDirList();
+    const target = allPosts.find((i) => {
+        if (path.parse(i.name).name === id) return i;
+    })
+    if (typeof target === "undefined") {
+        throw new Error("Page isn't found")
+    }
+    const { code, frontmatter } = await bundleMDX({ source: await downloadFileBySha(target.sha) });
     return { code, frontmatter };
 }
 type PostData = AsyncReturnType<typeof getPost>;
@@ -54,8 +62,8 @@ const PostPage: React.FC<{ post: PostData }> = ({ post }) => {
             /> */}
             <div className="m-auto w-11/12 md:w-5/6 lg:w-4/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
                 <PostHeader post={post} />
-                <main className="postContent font-light" ></main>
-                <DisqusComments pageUrl={`/blog/post/${post.frontmatter.title.split(" ").join("-")}`} pageId={post.frontmatter.title} />
+                <main className="postContent font-light" ><Component /></main>
+                <DisqusComments pageUrl={`/blog/post/test`} pageId={post.frontmatter.title} />
             </div>
         </>
     );

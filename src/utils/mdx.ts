@@ -56,4 +56,30 @@ export async function downloadFileBySha(sha: string) {
     const encoding = data.encoding as Parameters<typeof Buffer.from>['1']
     return Buffer.from(data.content, encoding).toString()
 }
+export type Githubfile = AsyncReturnType<typeof downloadDirList>[0]
+const contentDirCache: {
+    dirList: Githubfile[] | Promise<Githubfile[]>,
+    getDirList: () => Githubfile[] | Promise<Githubfile[]>
+    ranFirstTime: boolean,
+    updateDirList: () => void
+} = {
+    dirList: [],
+    ranFirstTime: false,
+    getDirList() {
+        const ONE_HOUR = 1000 * 60 * 60;
+        if (this.ranFirstTime === false) {
+            this.ranFirstTime = true;
+            this.updateDirList()
+            setInterval(() => {
+                this.updateDirList();
+            }, ONE_HOUR)
+        }
+        return this.dirList;
+    },
+    updateDirList() {
+        console.log("UPDATED GITHUB DIRECTORY")
+        this.dirList = downloadDirList("/src/content/blog");
+    }
+}
 
+export { contentDirCache }

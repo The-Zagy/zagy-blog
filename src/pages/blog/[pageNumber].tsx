@@ -1,13 +1,15 @@
 import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
+import path from 'path';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
-import { downloadDirList, downloadFileBySha } from '../../utils/mdx';
+import { contentDirCache, downloadFileBySha, Githubfile } from '../../utils/mdx';
 import { bundleMDX } from 'mdx-bundler';
 type MdxMeta = {
     title: string,
     description: string,
     data: string,
+    slug: string,
     bannerUrl: string,
     categories?: string[]
     meta: {
@@ -15,7 +17,26 @@ type MdxMeta = {
     }
 }
 const NUMBER_OF_POSTS_IN_A_PAGE = 12;
+const getAllPosts = async () => {
+    return await contentDirCache.getDirList();
+}
+const getPostsMeta = async (posts: Githubfile[], pageNum: number) => {
+    const take = NUMBER_OF_POSTS_IN_A_PAGE;
+    const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
+    const currentPageSignatures = posts.slice(skip, skip + take);
+    const actualPosts = await Promise.all(currentPageSignatures.map(async (file) => downloadFileBySha(file.sha)));
+    const postsMeta = await Promise.all(actualPosts.map(async (post, i) => {
+        const { frontmatter }: { frontmatter: MdxMeta } = await bundleMDX({ source: post });
+        return (
+            {
+                ...frontmatter,
+                slug: path.parse(currentPageSignatures[i]?.name as string).name
+            }
+        )
 
+    }));
+    return postsMeta;
+}
 const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
     const list = [];
     let rightEplises = false;
@@ -50,7 +71,7 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
     )
 }
 const PostCard: React.FC<MdxMeta & { big: boolean }> =
-    ({ title, categories = [], description, big, }) => {
+    ({ title, categories = [], description, big, slug }) => {
 
         const author = { name: "zaz", image: "https://as2.ftcdn.net/v2/jpg/03/31/69/91/1000_F_331699188_lRpvqxO5QRtwOM05gR50ImaaJgBx68vi.jpg" }
         return (
@@ -62,7 +83,7 @@ const PostCard: React.FC<MdxMeta & { big: boolean }> =
                 </div>
                 <header>
                     {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>
-                        <Link href={`/blog/post/${title.split(" ").join("-")}`}>{title}</Link>
+                        <Link href={`/blog/post/${slug}`}>{title}</Link>
                     </h2>}
                 </header>
                 <div className='flex flex-row flex-wrap gap-2'>
@@ -135,27 +156,14 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-    const mdPostsList = await downloadDirList("/src/content/blog");
-    const mdCount = Math.ceil(mdPostsList.length / NUMBER_OF_POSTS_IN_A_PAGE);
-    const take = NUMBER_OF_POSTS_IN_A_PAGE;
-    const skip = numPageNumber * NUMBER_OF_POSTS_IN_A_PAGE
-    const mdPosts = await Promise.all((mdPostsList.slice(skip, skip + take).map(async (file) => downloadFileBySha(file.sha))));
-    const mdPostsMeta = await Promise.all(mdPosts.map(async (post) => {
-        const { frontmatter }: { frontmatter: MdxMeta } = await bundleMDX({ source: post });
-        return (
-            {
-                ...frontmatter
-            }
-        )
-
-    }));
-
-
+    const allPosts = await getAllPosts();
+    const count = Math.ceil(allPosts.length / NUMBER_OF_POSTS_IN_A_PAGE);
+    const postsMeta = await getPostsMeta(allPosts, numPageNumber);
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
-            mdPostsMeta: JSON.parse(JSON.stringify(mdPostsMeta)),
-            count: mdCount,
+            mdPostsMeta: JSON.parse(JSON.stringify(postsMeta)),
+            count,
             pageNumber: numPageNumber + 1
         },
         revalidate: DAY_IN_SECONDS / 24
