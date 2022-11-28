@@ -8,14 +8,7 @@ import DisqusComments from '../../../components/disqus-comments/DisqusComments';
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
 import GitHubFilesCache from '../../../utils/mdx';
 async function getPost(id: string) {
-    const allPosts = await GitHubFilesCache.getPosts();
-    const target = allPosts.find((i) => {
-        if (i.meta.slug === id) return i;
-    })
-    if (typeof target === "undefined") {
-        throw new Error("Page isn't found")
-    }
-    return target;
+    return GitHubFilesCache.getPost(id);
 }
 type PostData = AsyncReturnType<typeof getPost>;
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: Minute }> = ({ userName, userImage, createdAt, avgReadingTime }) => {

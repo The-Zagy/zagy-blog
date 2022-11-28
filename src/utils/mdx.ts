@@ -4,7 +4,7 @@ import { env } from '../env/server.mjs';
 import { AsyncReturnType } from './ts-bs';
 import { bundleMDX } from 'mdx-bundler';
 import path from 'path';
-
+import { NUMBER_OF_POSTS_IN_A_PAGE } from '../env/constants';
 //Setup octakit with throttling plugin as recommended in the octakit documentation
 const Octokit = createOctokit.plugin(throttling)
 type ThrottleOptions = {
@@ -173,6 +173,12 @@ class GithubFilesCache {
             }
             return false;
         })
+    }
+    public async getPostsPage(pageNum: number): Promise<Post[]> {
+        await this.getPosts();
+        const take = NUMBER_OF_POSTS_IN_A_PAGE;
+        const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
+        return this.githubFiles.slice(skip, skip + take);
     }
 }
 export default new GithubFilesCache();

@@ -5,6 +5,7 @@ import { NextSeo } from 'next-seo';
 import GitHubFilesCache from '../../utils/mdx';
 import { getContributers } from '../../utils/mdx'
 import { AsyncReturnType } from '../../utils/ts-bs';
+import { NUMBER_OF_POSTS_IN_A_PAGE } from '../../env/constants';
 type MdxMeta = {
     title: string,
     description: string,
@@ -16,14 +17,6 @@ type MdxMeta = {
         keywords: string[],
     }
     contributers: AsyncReturnType<typeof getContributers>
-}
-const NUMBER_OF_POSTS_IN_A_PAGE = 12;
-const getPostsMeta = async (pageNum: number) => {
-    const take = NUMBER_OF_POSTS_IN_A_PAGE;
-    const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
-    const posts = await GitHubFilesCache.getPosts();
-    return posts.slice(skip, skip + take);
-
 }
 const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
     const list = [];
@@ -145,7 +138,12 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
     }
 
     const count = Math.ceil(await GitHubFilesCache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
-    const postsMeta = await getPostsMeta(numPageNumber);
+    const postsMeta = await GitHubFilesCache.getPostsPage(numPageNumber);
+    if(numPageNumber>count){
+        return{
+            notFound:true
+        }
+    }
     console.log(postsMeta.length)
     const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
