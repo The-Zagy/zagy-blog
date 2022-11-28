@@ -106,8 +106,15 @@ const downloadAndParsePosts = async () => {
             }
         )
 
-    }));
-    return posts as Promise<Post[]>;
+    })) as Promise<Post[]>;
+    
+    return (await posts).sort((a,b)=>{
+        const dateA = new Date(a.meta.date);
+        const dateB = new Date(b.meta.date);
+        if(dateA<dateB)return 1;
+        if(dateA>dateB)return -1;
+        return 0;
+    }) ;
 }
 
 class GithubFilesCache {
@@ -117,15 +124,17 @@ class GithubFilesCache {
         this.githubFiles = [];
         this.ranFirstTime = false;
     }
+    // switch all logic of getting posts to this class only to keep crud based interface
     public async getPosts() {
         const ONE_HOUR = 1000 * 60 * 60;
         if (this.ranFirstTime === false) {
-            console.log("first fetc ---------------------------")
-            this.ranFirstTime = true;
+            console.log("first fetc --------------------------- (miss)")
             this.githubFiles = await downloadAndParsePosts();
-            setInterval(() => {
-                this.updatePosts();
-            }, ONE_HOUR)
+            this.ranFirstTime = true;
+            //! we don't update with intervals anymore instead update ondemand from webhook
+            // setInterval(() => {
+            //     this.updatePosts();
+            // }, ONE_HOUR)
         }
         return this.githubFiles;
     }
@@ -133,13 +142,37 @@ class GithubFilesCache {
         const posts = await this.getPosts();
         return posts.length;
     }
-    private async updatePosts() {
+    public async updatePosts() {
         //We can later update this to only update if a signal has been recieved that the repo was updated;
         console.log("updated")
         this.githubFiles = await downloadAndParsePosts();
     }
+    public async getPost(id: string): Promise<Post> {
+        // console.log(`first run? ${this.ranFirstTime}`);
+        // constructor can't be async, and function get posts already check if it's the first run so only get posts in each crud to not fall in first hit
+        await this.getPosts();
+        // console.log('length', this.githubFiles.length)
+        const target = this.githubFiles.find((i) => {
+            if (i.meta.slug === id) return i;
+        })
+        // console.log(target, typeof target);
+        //TODO why in prod always throwing this error
+        if (typeof target === "undefined") {
+            throw new Error("Page isn't found")
+        }
+        // console.log('return from getPost')
+        return target;
+    }
 
-
-
+    public async getPostsByTag(...tags: string[]): Promise<Post[]> {
+        console.log(tags, typeof tags);
+        await this.getPosts();
+        return this.githubFiles.filter((post, i ) => {
+            for (const tag of tags) {
+                if (post.meta.categories?.includes(tag)) return true;
+            }
+            return false;
+        })
+    }
 }
 export default new GithubFilesCache();
