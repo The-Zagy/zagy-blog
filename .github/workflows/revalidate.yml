@@ -19,12 +19,12 @@ jobs:
         uses: tj-actions/changed-files@v34
         with:
           files: |
-            contents/**
+            content/**
       - name: Make an array of those file/s SHAs
         id: shas
         run: |
           shas=()
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
             $shas+=`sha1sum $file | cut -d ' ' -f 1`
           done
           echo "shas=$(shas)"" >> $GITHUB_OUTPUT
