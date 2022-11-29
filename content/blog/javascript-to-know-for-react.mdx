@@ -43,7 +43,7 @@ bannerCloudinaryId: unsplash/photo-1519681393784-d120267933ba
 bannerCredit: Photo by [Benjamin Voros](https://unsplash.com/photos/phIFdC6lA4E)
 ---
 
-One of the things I love most about React compared to other frameworks that I've
+One of the things I love most about React compared to other fram eworks that I've
 used is how exposed you are to JavaScript when you're using it. There's no
 template DSL (JSX compiles to sensible JavaScript), the component API has only
 gotten simpler with the addition of [React Hooks](https://reactjs.org/hooks),
@@ -66,16 +66,16 @@ Ok, let's get to the JS features you'll want to know for React.
 Template literals are like regular strings with super-powers:
 
 ```tsx [10]
-const greeting = 'Hello'
-const subject = 'World'
-console.log(`${greeting} ${subject}!`) // Hello World!
+const greeting = "Hello";
+const subject = "World";
+console.log(`${greeting} ${subject}!`); // Hello World!
 
 // this is the same as:
-console.log(greeting + ' ' + subject + '!')
+console.log(greeting + " " + subject + "!");
 
 // in React:
-function Box({className, ...props}) {
-  return <div className={`box ${className}`} {...props} />
+function Box({ className, ...props }) {
+  return <div className={`box ${className}`} {...props} />;
 }
 ```
 
@@ -86,18 +86,18 @@ function Box({className, ...props}) {
 This is so common and useful that I do this without thinking now.
 
 ```tsx [11]
-const a = 'hello'
-const b = 42
-const c = {d: [true, false]}
-console.log({a, b, c})
+const a = "hello";
+const b = 42;
+const c = { d: [true, false] };
+console.log({ a, b, c });
 
 // this is the same as:
-console.log({a: a, b: b, c: c})
+console.log({ a: a, b: b, c: c });
 
 // in React:
-function Counter({initialCount, step}) {
-  const [count, setCount] = useCounter({initialCount, step})
-  return <button onClick={setCount}>{count}</button>
+function Counter({ initialCount, step }) {
+  const [count, setCount] = useCounter({ initialCount, step });
+  return <button onClick={setCount}>{count}</button>;
 }
 ```
 
@@ -112,32 +112,32 @@ classes), but the arrow function allows for terser anonymous functions and
 implicit returns, so you'll see and want to use arrow functions plenty.
 
 ```tsx [20-24]
-const getFive = () => 5
-const addFive = a => a + 5
-const divide = (a, b) => a / b
+const getFive = () => 5;
+const addFive = (a) => a + 5;
+const divide = (a, b) => a / b;
 
 // this is the same as:
 function getFive() {
-  return 5
+  return 5;
 }
 function addFive(a) {
-  return a + 5
+  return a + 5;
 }
 function divide(a, b) {
-  return a / b
+  return a / b;
 }
 
 // in React:
-function TeddyBearList({teddyBears}) {
+function TeddyBearList({ teddyBears }) {
   return (
     <ul>
-      {teddyBears.map(teddyBear => (
+      {teddyBears.map((teddyBear) => (
         <li key={teddyBear.id}>
           <span>{teddyBear.name}</span>
         </li>
       ))}
     </ul>
-  )
+  );
 }
 ```
 
@@ -160,27 +160,27 @@ declarative it is.
 // const obj = {x: 3.6, y: 7.8}
 // makeCalculation(obj)
 
-function makeCalculation({x, y: d, z = 4}) {
-  return Math.floor((x + d + z) / 3)
+function makeCalculation({ x, y: d, z = 4 }) {
+  return Math.floor((x + d + z) / 3);
 }
 
 // this is the same as
 function makeCalculation(obj) {
-  const {x, y: d, z = 4} = obj
-  return Math.floor((x + d + z) / 3)
+  const { x, y: d, z = 4 } = obj;
+  return Math.floor((x + d + z) / 3);
 }
 
 // which is the same as
 function makeCalculation(obj) {
-  const x = obj.x
-  const d = obj.y
-  const z = obj.z === undefined ? 4 : obj.z
-  return Math.floor((x + d + z) / 3)
+  const x = obj.x;
+  const d = obj.y;
+  const z = obj.z === undefined ? 4 : obj.z;
+  return Math.floor((x + d + z) / 3);
 }
 
 // in React:
-function UserGitHubImg({username = 'ghost', ...props}) {
-  return <img src={`https://github.com/${username}.png`} {...props} />
+function UserGitHubImg({ username = "ghost", ...props }) {
+  return <img src={`https://github.com/${username}.png`} {...props} />;
 }
 ```
 
@@ -195,24 +195,24 @@ function UserGitHubImg({username = 'ghost', ...props}) {
 function nestedArrayAndObject() {
   // refactor this to a single line of destructuring...
   const info = {
-    title: 'Once Upon a Time',
+    title: "Once Upon a Time",
     protagonist: {
-      name: 'Emma Swan',
+      name: "Emma Swan",
       enemies: [
-        {name: 'Regina Mills', title: 'Evil Queen'},
-        {name: 'Cora Mills', title: 'Queen of Hearts'},
-        {name: 'Peter Pan', title: `The boy who wouldn't grow up`},
-        {name: 'Zelena', title: 'The Wicked Witch'},
+        { name: "Regina Mills", title: "Evil Queen" },
+        { name: "Cora Mills", title: "Queen of Hearts" },
+        { name: "Peter Pan", title: `The boy who wouldn't grow up` },
+        { name: "Zelena", title: "The Wicked Witch" },
       ],
     },
-  }
+  };
   // const {} = info // <-- replace the next few `const` lines with this
-  const title = info.title
-  const protagonistName = info.protagonist.name
-  const enemy = info.protagonist.enemies[3]
-  const enemyTitle = enemy.title
-  const enemyName = enemy.name
-  return `${enemyName} (${enemyTitle}) is an enemy to ${protagonistName} in "${title}"`
+  const title = info.title;
+  const protagonistName = info.protagonist.name;
+  const enemy = info.protagonist.enemies[3];
+  const enemyTitle = enemy.title;
+  const enemyName = enemy.name;
+  return `${enemyName} (${enemyTitle}) is an enemy to ${protagonistName} in "${title}"`;
 }
 ```
 
@@ -225,35 +225,35 @@ declaratively express default values for your functions.
 // add(1)
 // add(1, 2)
 function add(a, b = 0) {
-  return a + b
+  return a + b;
 }
 
 // is the same as
-const add = (a, b = 0) => a + b
+const add = (a, b = 0) => a + b;
 
 // is the same as
 function add(a, b) {
-  b = b === undefined ? 0 : b
-  return a + b
+  b = b === undefined ? 0 : b;
+  return a + b;
 }
 
 // in React:
 function useLocalStorageState({
   key,
   initialValue,
-  serialize = v => v,
-  deserialize = v => v,
+  serialize = (v) => v,
+  deserialize = (v) => v,
 }) {
   const [state, setState] = React.useState(
-    () => deserialize(window.localStorage.getItem(key)) || initialValue,
-  )
+    () => deserialize(window.localStorage.getItem(key)) || initialValue
+  );
 
-  const serializedState = serialize(state)
+  const serializedState = serialize(state);
   React.useEffect(() => {
-    window.localStorage.setItem(key, serializedState)
-  }, [key, serializedState])
+    window.localStorage.setItem(key, serializedState);
+  }, [key, serializedState]);
 
-  return [state, setState]
+  return [state, setState];
 }
 ```
 
@@ -267,49 +267,49 @@ you learn how and where it can be used as well. It actually takes different
 meanings in different contexts, so learning the nuances there will help you.
 
 ```tsx [43]
-const arr = [5, 6, 8, 4, 9]
-Math.max(...arr)
+const arr = [5, 6, 8, 4, 9];
+Math.max(...arr);
 // is the same as
-Math.max.apply(null, arr)
+Math.max.apply(null, arr);
 
 const obj1 = {
-  a: 'a from obj1',
-  b: 'b from obj1',
-  c: 'c from obj1',
+  a: "a from obj1",
+  b: "b from obj1",
+  c: "c from obj1",
   d: {
-    e: 'e from obj1',
-    f: 'f from obj1',
+    e: "e from obj1",
+    f: "f from obj1",
   },
-}
+};
 const obj2 = {
-  b: 'b from obj2',
-  c: 'c from obj2',
+  b: "b from obj2",
+  c: "c from obj2",
   d: {
-    g: 'g from obj2',
-    h: 'h from obj2',
+    g: "g from obj2",
+    h: "h from obj2",
   },
-}
-console.log({...obj1, ...obj2})
-// is the same as
-console.log(Object.assign({}, obj1, obj2))
+};
+console.log({ ...obj1, ...obj2 });
+// is the same a   s
+console.log(Object.assign({}, obj1, obj2));
 
 function add(first, ...rest) {
-  return rest.reduce((sum, next) => sum + next, first)
+  return rest.reduce((sum, next) => sum + next, first);
 }
 // is the same as
 function add() {
-  const first = arguments[0]
-  const rest = Array.from(arguments).slice(1)
-  return rest.reduce((sum, next) => sum + next, first)
+  const first = arguments[0];
+  const rest = Array.from(arguments).slice(1);
+  return rest.reduce((sum, next) => sum + next, first);
 }
 
 // in React:
-function Box({className, ...restOfTheProps}) {
+function Box({ className, ...restOfTheProps }) {
   const defaultProps = {
     className: `box ${className}`,
-    children: 'Empty box',
-  }
-  return <div {...defaultProps} {...restOfTheProps} />
+    children: "Empty box",
+  };
+  return <div {...defaultProps} {...restOfTheProps} />;
 }
 ```
 
@@ -326,7 +326,7 @@ organization.
 
 ```js [30]
 export default function add(a, b) {
-  return a + b
+  return a + b;
 }
 
 /*
@@ -334,7 +334,7 @@ export default function add(a, b) {
  * console.assert(add(3, 2) === 5)
  */
 
-export const foo = 'bar'
+export const foo = "bar";
 
 /*
  * import {foo} from './foo'
@@ -342,10 +342,10 @@ export const foo = 'bar'
  */
 
 export function subtract(a, b) {
-  return a - b
+  return a - b;
 }
 
-export const now = new Date()
+export const now = new Date();
 
 /*
  * import {subtract, now} from './stuff'
@@ -354,24 +354,24 @@ export const now = new Date()
  */
 
 // dynamic imports
-import('./some-module').then(
-  allModuleExports => {
+import("./some-module").then(
+  (allModuleExports) => {
     // the allModuleExports object will be the same object you get if you had
     // used: import * as allModuleExports from './some-module'
     // the only difference is this will be loaded asynchronously which can
     // have performance benefits in some cases
   },
-  error => {
+  (error) => {
     // handle the error
     // this will happen if there's an error loading or running the module
-  },
-)
+  }
+);
 
 // in React:
-import React, {Suspense, Fragment} from 'react'
+import React, { Suspense, Fragment } from "react";
 
 // dynamic import of a React component
-const BigComponent = React.lazy(() => import('./big-component'))
+const BigComponent = React.lazy(() => import("./big-component"));
 // big-component.js would need to "export default BigComponent" for this to work
 ```
 
@@ -391,24 +391,24 @@ I love ternaries. They're beautifully declarative. Especially in JSX.
 
 ```tsx [17-27]
 const message = bottle.fullOfSoda
-  ? 'The bottle has soda!'
-  : 'The bottle may not have soda :-('
+  ? "The bottle has soda!"
+  : "The bottle may not have soda :-(";
 
 // is the same as
-let message
+let message;
 if (bottle.fullOfSoda) {
-  message = 'The bottle has soda!'
+  message = "The bottle has soda!";
 } else {
-  message = 'The bottle may not have soda :-('
+  message = "The bottle may not have soda :-(";
 }
 
 // in React:
-function TeddyBearList({teddyBears}) {
+function TeddyBearList({ teddyBears }) {
   return (
     <React.Fragment>
       {teddyBears.length ? (
         <ul>
-          {teddyBears.map(teddyBear => (
+          {teddyBears.map((teddyBear) => (
             <li key={teddyBear.id}>
               <span>{teddyBear.name}</span>
             </li>
@@ -418,7 +418,7 @@ function TeddyBearList({teddyBears}) {
         <div>There are no teddy bears. The sadness.</div>
       )}
     </React.Fragment>
-  )
+  );
 }
 ```
 
@@ -450,74 +450,74 @@ Here are some examples:
 ```tsx [64-68]
 const dogs = [
   {
-    id: 'dog-1',
-    name: 'Poodle',
+    id: "dog-1",
+    name: "Poodle",
     temperament: [
-      'Intelligent',
-      'Active',
-      'Alert',
-      'Faithful',
-      'Trainable',
-      'Instinctual',
+      "Intelligent",
+      "Active",
+      "Alert",
+      "Faithful",
+      "Trainable",
+      "Instinctual",
     ],
   },
   {
-    id: 'dog-2',
-    name: 'Bernese Mountain Dog',
-    temperament: ['Affectionate', 'Intelligent', 'Loyal', 'Faithful'],
+    id: "dog-2",
+    name: "Bernese Mountain Dog",
+    temperament: ["Affectionate", "Intelligent", "Loyal", "Faithful"],
   },
   {
-    id: 'dog-3',
-    name: 'Labrador Retriever',
+    id: "dog-3",
+    name: "Labrador Retriever",
     temperament: [
-      'Intelligent',
-      'Even Tempered',
-      'Kind',
-      'Agile',
-      'Outgoing',
-      'Trusting',
-      'Gentle',
+      "Intelligent",
+      "Even Tempered",
+      "Kind",
+      "Agile",
+      "Outgoing",
+      "Trusting",
+      "Gentle",
     ],
   },
-]
+];
 
-dogs.find(dog => dog.name === 'Bernese Mountain Dog')
+dogs.find((dog) => dog.name === "Bernese Mountain Dog");
 // {id: 'dog-2', name: 'Bernese Mountain Dog', ...etc}
 
-dogs.some(dog => dog.temperament.includes('Aggressive'))
+dogs.some((dog) => dog.temperament.includes("Aggressive"));
 // false
 
-dogs.some(dog => dog.temperament.includes('Trusting'))
+dogs.some((dog) => dog.temperament.includes("Trusting"));
 // true
 
-dogs.every(dog => dog.temperament.includes('Trusting'))
+dogs.every((dog) => dog.temperament.includes("Trusting"));
 // false
 
-dogs.every(dog => dog.temperament.includes('Intelligent'))
+dogs.every((dog) => dog.temperament.includes("Intelligent"));
 // true
 
-dogs.map(dog => dog.name)
+dogs.map((dog) => dog.name);
 // ['Poodle', 'Bernese Mountain Dog', 'Labrador Retriever']
 
-dogs.filter(dog => dog.temperament.includes('Faithful'))
+dogs.filter((dog) => dog.temperament.includes("Faithful"));
 // [{id: 'dog-1', ..etc}, {id: 'dog-2', ...etc}]
 
 dogs.reduce((allTemperaments, dog) => {
-  return [...allTemperaments, ...dog.temperament]
-}, [])
+  return [...allTemperaments, ...dog.temperament];
+}, []);
 // [ 'Intelligent', 'Active', 'Alert', ...etc ]
 
 // in React:
-function RepositoryList({repositories, owner}) {
+function RepositoryList({ repositories, owner }) {
   return (
     <ul>
       {repositories
-        .filter(repo => repo.owner === owner)
-        .map(repo => (
+        .filter((repo) => repo.owner === owner)
+        .map((repo) => (
           <li key={repo.id}>{repo.name}</li>
         ))}
     </ul>
-  )
+  );
 }
 ```
 
@@ -530,30 +530,30 @@ default value:
 
 ```js
 // here's what we often did for this:
-x = x || 'some default'
+x = x || "some default";
 
 // but this was problematic for numbers or booleans where "0" or "false" are valid values
 
 // So, if we wanted to support this:
-add(null, 3)
+add(null, 3);
 
 // here's what we had to do before:
 function add(a, b) {
-  a = a == null ? 0 : a
-  b = b == null ? 0 : b
-  return a + b
+  a = a == null ? 0 : a;
+  b = b == null ? 0 : b;
+  return a + b;
 }
 
 // here's what we can do now
 function add(a, b) {
-  a = a ?? 0
-  b = b ?? 0
-  return a + b
+  a = a ?? 0;
+  b = b ?? 0;
+  return a + b;
 }
 
 // in React:
-function DisplayContactName({contact}) {
-  return <div>{contact.name ?? 'Unknown'}</div>
+function DisplayContactName({ contact }) {
+  return <div>{contact.name ?? "Unknown"}</div>;
 }
 ```
 
@@ -567,36 +567,36 @@ a hacky-workaround that relied on falsy/truthy-ness.
 
 ```js
 // what we did before optional chaining:
-const streetName = user && user.address && user.address.street.name
+const streetName = user && user.address && user.address.street.name;
 
 // what we can do now:
-const streetName = user?.address?.street?.name
+const streetName = user?.address?.street?.name;
 
 // this will run even if options is undefined (in which case, onSuccess would be undefined as well)
 // however, it will still fail if options was never declared,
 // since optional chaining cannot be used on a non-existent root object.
 // optional chaining does not replace checks like if (typeof options == "undefined")
-const onSuccess = options?.onSuccess
+const onSuccess = options?.onSuccess;
 
 // this will run without error even if onSuccess is undefined (in which case, no function will be called)
-onSuccess?.({data: 'yay'})
+onSuccess?.({ data: "yay" });
 
 // and we can combine those things into a single line:
-options?.onSuccess?.({data: 'yay'})
+options?.onSuccess?.({ data: "yay" });
 
 // and if you are 100% certain that onSuccess is a function if options exists
 // then you don't need the extra ?. before calling it. Only use ?. in situations
 // where the thing on the left might not exist.
-options?.onSuccess({data: 'yay'})
+options?.onSuccess({ data: "yay" });
 
 // in React:
-function UserProfile({user}) {
+function UserProfile({ user }) {
   return (
     <div>
       <h1>{user.name}</h1>
-      <strong>{user.bio?.short ?? 'No bio provided'}</strong>
+      <strong>{user.bio?.short ?? "No bio provided"}</strong>
     </div>
-  )
+  );
 }
 ```
 
@@ -619,52 +619,52 @@ dealing with promises. The two go hand-in-hand.
 
 ```tsx [71-81]
 function promises() {
-  const successfulPromise = timeout(100).then(result => `success: ${result}`)
+  const successfulPromise = timeout(100).then((result) => `success: ${result}`);
 
-  const failingPromise = timeout(200, true).then(null, error =>
-    Promise.reject(`failure: ${error}`),
-  )
+  const failingPromise = timeout(200, true).then(null, (error) =>
+    Promise.reject(`failure: ${error}`)
+  );
 
-  const recoveredPromise = timeout(300, true).then(null, error =>
-    Promise.resolve(`failed and recovered: ${error}`),
-  )
+  const recoveredPromise = timeout(300, true).then(null, (error) =>
+    Promise.resolve(`failed and recovered: ${error}`)
+  );
 
-  successfulPromise.then(log, logError)
-  failingPromise.then(log, logError)
-  recoveredPromise.then(log, logError)
+  successfulPromise.then(log, logError);
+  failingPromise.then(log, logError);
+  recoveredPromise.then(log, logError);
 }
 
 function asyncAwaits() {
   async function successfulAsyncAwait() {
-    const result = await timeout(100)
-    return `success: ${result}`
+    const result = await timeout(100);
+    return `success: ${result}`;
   }
 
   async function failedAsyncAwait() {
-    const result = await timeout(200, true)
-    return `failed: ${result}` // this would not be executed
+    const result = await timeout(200, true);
+    return `failed: ${result}`; // this would not be executed
   }
 
   async function recoveredAsyncAwait() {
     try {
-      const result = await timeout(300, true)
-      return `failed: ${result}` // this would not be executed
+      const result = await timeout(300, true);
+      return `failed: ${result}`; // this would not be executed
     } catch (error) {
-      return `failed and recovered: ${error}`
+      return `failed and recovered: ${error}`;
     }
   }
 
-  successfulAsyncAwait().then(log, logError)
-  failedAsyncAwait().then(log, logError)
-  recoveredAsyncAwait().then(log, logError)
+  successfulAsyncAwait().then(log, logError);
+  failedAsyncAwait().then(log, logError);
+  recoveredAsyncAwait().then(log, logError);
 }
 
 function log(...args) {
-  console.log(...args)
+  console.log(...args);
 }
 
 function logError(...args) {
-  console.error(...args)
+  console.error(...args);
 }
 
 // This is the mothership of all things asynchronous
@@ -672,45 +672,45 @@ function timeout(duration = 0, shouldReject = false) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (shouldReject) {
-        reject(`rejected after ${duration}ms`)
+        reject(`rejected after ${duration}ms`);
       } else {
-        resolve(`resolved after ${duration}ms`)
+        resolve(`resolved after ${duration}ms`);
       }
-    }, duration)
-  })
+    }, duration);
+  });
 }
 
 // in React:
-function GetGreetingForSubject({subject}) {
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [error, setError] = React.useState(null)
-  const [greeting, setGreeting] = React.useState(null)
+function GetGreetingForSubject({ subject }) {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [greeting, setGreeting] = React.useState(null);
 
   React.useEffect(() => {
     async function fetchGreeting() {
       try {
-        const response = await window.fetch('https://example.com/api/greeting')
-        const data = await response.json()
-        setGreeting(data.greeting)
+        const response = await window.fetch("https://example.com/api/greeting");
+        const data = await response.json();
+        setGreeting(data.greeting);
       } catch (error) {
-        setError(error)
+        setError(error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-    setIsLoading(true)
-    fetchGreeting()
-  }, [])
+    setIsLoading(true);
+    fetchGreeting();
+  }, []);
 
   return isLoading ? (
-    'loading...'
+    "loading..."
   ) : error ? (
-    'ERROR!'
+    "ERROR!"
   ) : greeting ? (
     <div>
       {greeting} {subject}
     </div>
-  ) : null
+  ) : null;
 }
 ```
 
