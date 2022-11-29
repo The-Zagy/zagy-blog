@@ -107,14 +107,14 @@ const downloadAndParsePosts = async () => {
         )
 
     })) as Promise<Post[]>;
-    
-    return (await posts).sort((a,b)=>{
+
+    return (await posts).sort((a, b) => {
         const dateA = new Date(a.meta.date);
         const dateB = new Date(b.meta.date);
-        if(dateA<dateB)return 1;
-        if(dateA>dateB)return -1;
+        if (dateA < dateB) return 1;
+        if (dateA > dateB) return -1;
         return 0;
-    }) ;
+    });
 }
 
 class GithubFilesCache {
@@ -167,9 +167,9 @@ class GithubFilesCache {
     public async getPostsByTag(...tags: string[]): Promise<Post[]> {
         console.log(tags, typeof tags);
         await this.getPosts();
-        return this.githubFiles.filter((post, i ) => {
+        return this.githubFiles.filter((post) => {
             for (const tag of tags) {
-                if (post.meta.categories?.includes(tag)) return true;
+                if (post.meta.categories?.findIndex(item => tag.toLowerCase() === item.toLowerCase()) !== -1) return true;
             }
             return false;
         })
