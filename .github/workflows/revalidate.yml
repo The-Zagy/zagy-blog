@@ -25,4 +25,4 @@ jobs:
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             $shas+=`sha1sum $file | cut -d ' ' -f 1`
           done
-          echo ${{shas}}
+          echo ${shas}
