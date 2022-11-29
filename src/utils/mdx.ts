@@ -1,10 +1,17 @@
 import { Octokit as createOctokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
+import { bundleMDX } from 'mdx-bundler';
+import { PluggableList } from 'unified';
+import rehypePrism from 'rehype-prism-plus';
+import remarkGfm from 'remark-gfm'
+import path from 'path';
+import slug from "rehype-slug";
+import toc from "@jsdevtools/rehype-toc";
 import { env } from '../env/server.mjs';
 import { AsyncReturnType } from './ts-bs';
-import { bundleMDX } from 'mdx-bundler';
-import path from 'path';
+
 import { NUMBER_OF_POSTS_IN_A_PAGE } from '../env/constants';
+
 //Setup octakit with throttling plugin as recommended in the octakit documentation
 const Octokit = createOctokit.plugin(throttling)
 type ThrottleOptions = {
@@ -82,26 +89,38 @@ export type Post = {
         date: string,
         slug: string,
         bannerUrl: string,
-        categories?: string[]
+        categories?: string[],
+        githubPath: string,
         meta: {
             keywords: string[],
         }
         contributers: AsyncReturnType<typeof getContributers>
     }
 }
+
+const remarkPlugins: PluggableList = [remarkGfm];
+const rehypePlugins: PluggableList = [slug, toc, rehypePrism]
 const downloadAndParsePosts = async () => {
-    const dir = await downloadDirList("/src/content/blog");
+    const dir = await downloadDirList("/content/blog");
     const actualPosts = await Promise.all(dir.map(async (file) => downloadFileBySha(file.sha)));
     const posts = Promise.all(actualPosts.map(async (post, i) => {
         const contributers = await getContributers(dir[i]?.path as string);
-        const { code, frontmatter } = await bundleMDX({ source: post });
+        const { code, frontmatter } = await bundleMDX({
+            source: post,
+            mdxOptions(options) {
+                options.remarkPlugins = [...(options.remarkPlugins ?? []), ...remarkPlugins];
+                options.rehypePlugins = [...(options.rehypePlugins ?? []), ...rehypePlugins]
+                return options;
+            }
+        });
         return (
             {
                 code,
                 meta: {
                     ...frontmatter,
                     slug: path.parse(dir[i]?.name as string).name,
-                    contributers
+                    contributers,
+                    githubPath: dir[i]?.path
                 }
             }
         )

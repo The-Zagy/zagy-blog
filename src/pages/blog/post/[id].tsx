@@ -44,17 +44,13 @@ const PostPage: React.FC<{ post: PostData }> = ({ post }) => {
     const Component = useMemo(() => getMDXComponent(post.code), [post.code])
     return (
         <>
-            {/* <ArticleJsonLd
-                authorName={post.author.userName}
-                datePublished={dateFormat(post.createdAt)}
-                description={post.breif}
-                title={post.title}
-                images={[post.image]}
-                url={''}
-            /> */}
+
             <div className="m-auto w-11/12 md:w-5/6 lg:w-4/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
                 <PostHeader post={post} />
-                <main className="postContent font-light" ><Component /></main>
+                <main className="prose lg:prose-2xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base max-w-none" ><Component /></main>
+                <div className="flex border-b-2 border-gray-50">
+                    <a href={`${"https://github.com/The-Zagy/zagy-blog/edit/main"}/${post.meta.githubPath}`}>Edit this on github</a>
+                </div>
                 <DisqusComments pageUrl={`/blog/post/${post.meta.slug}`} pageId={post.meta.title} />
             </div>
         </>
