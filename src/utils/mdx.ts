@@ -198,5 +198,15 @@ class GithubFilesCache {
         const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
         return this.githubFiles.slice(skip, skip + take);
     }
+    public async getTags(): Promise<string[]> {
+        await this.getPosts();
+        const tags = new Set<string>;
+        for (const post of this.githubFiles) {
+            if (post.meta.categories === undefined) continue;
+            for (const tag of post.meta.categories) 
+                tags.add(tag);
+        }
+        return Array.from(tags);
+    }
 }
 export default new GithubFilesCache();

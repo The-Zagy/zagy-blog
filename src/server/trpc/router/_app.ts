@@ -1,10 +1,11 @@
 import { router } from "../trpc";
 import { authRouter } from "./auth";
+import { postsByTagRouter } from "./postsByTag";
 import { tagsRouter } from "./tags";
-
 export const appRouter = router({
   auth: authRouter,
-  tags: tagsRouter
+  postsByTag: postsByTagRouter,
+  tags: tagsRouter,
 });
 
 // export type definition of API
