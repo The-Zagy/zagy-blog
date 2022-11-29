@@ -3,7 +3,7 @@ on:
   # (Note: To compare changes between the last pushed commit to the remote main branch set `since_last_remote_commit: true`)
   push:
     branches:
-      - main
+      - MDX
     paths:
       - "content/**"
 jobs:
@@ -26,9 +26,3 @@ jobs:
             $shas+=`sha1sum $file | cut -d ' ' -f 1`
           done
           echo ${{shas}}
-        uses: fjogeleit/http-request-action@v1
-        with:
-        url: "https://ansible.io/api/v2/job_templates/84/launch/"
-        method: "POST"
-        customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
-        data: echo "test"
