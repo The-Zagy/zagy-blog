@@ -126,7 +126,7 @@ class GithubFilesCache {
     }
     // switch all logic of getting posts to this class only to keep crud based interface
     public async getPosts() {
-        const ONE_HOUR = 1000 * 60 * 60;
+        // const ONE_HOUR = 1000 * 60 * 60;
         if (this.ranFirstTime === false) {
             console.log("first fetc --------------------------- (miss)")
             this.githubFiles = await downloadAndParsePosts();
@@ -142,10 +142,9 @@ class GithubFilesCache {
         const posts = await this.getPosts();
         return posts.length;
     }
-    public async updatePosts() {
+    public async updatePosts(...slugs: string[]) {
         //We can later update this to only update if a signal has been recieved that the repo was updated;
-        console.log("updated")
-        this.githubFiles = await downloadAndParsePosts();
+
     }
     public async getPost(id: string): Promise<Post> {
         // console.log(`first run? ${this.ranFirstTime}`);
