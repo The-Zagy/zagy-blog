@@ -19,10 +19,19 @@ jobs:
           files: |
             contents/**
       - name: Send a request to revalidate with those files
+        id: make-request
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           shas=()
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             $shas+=`sha1sum $file | cut -d ' ' -f 1`
           done
-          echo ${shas}
+          echo "shas=$(shas)"" >> $GITHUB_OUTPUT
+        run : |
+          echo "${{steps.make-request.outputs.shas}}"
+        uses: fjogeleit/http-request-action@v1
+          with:
+            url: "https://ansible.io/api/v2/job_templates/84/launch/"
+            method: "POST"
+            customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
+            data: ${{steps.make-request.outputs.shas}}
