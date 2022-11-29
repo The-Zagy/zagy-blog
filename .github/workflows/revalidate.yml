@@ -12,6 +12,8 @@ jobs:
     name: Send request to revalidate
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2 # OR "2" -> To retrieve the preceding commit.
       - name: Get changed or created files
         id: changed-files-specific
         uses: tj-actions/changed-files@v34
