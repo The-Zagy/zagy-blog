@@ -5,6 +5,7 @@ import { trpc } from "../utils/trpc";
 import { NEXT_SEO_DEFAULT } from "../../nex-seo.config";
 import { DefaultSeo } from "next-seo";
 import "../styles/globals.css";
+import "../styles/syntax-higlighting.css";
 import DefaultLayout from "../layouts/default-layout/DefaultLayout";
 import React from "react";
 import { ThemeProvider } from "next-themes";

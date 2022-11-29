@@ -1,0 +1,38 @@
+on:
+  # Compare the preceeding commit of main -> to the current commit of the main branch.
+  # (Note: To compare changes between the last pushed commit to the remote main branch set `since_last_remote_commit: true`)
+  push:
+    branches:
+      - MDX
+    paths:
+      - "content/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest # windows-latest | macos-latest
+    name: Send request to revalidate
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # OR "2" -> To retrieve the preceding commit.
+      - name: Get changed or created files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v34
+        with:
+          files: |
+            content/**
+      - name: Make an array of those file/s SHAs
+        id: shas
+        run: |
+          shas=()
+          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
+            $shas+=`sha1sum $file | cut -d ' ' -f 1`
+          done
+          echo "shas=$(shas)"" >> $GITHUB_OUTPUT
+      - name: Send a request to revalidate those files
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: "https://ansible.io/api/v2/job_templates/84/launch/"
+          method: "POST"
+          customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
+          data: ${{steps.shas.outputs.shas}}
