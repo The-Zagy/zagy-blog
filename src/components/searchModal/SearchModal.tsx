@@ -16,7 +16,7 @@ const SearchModal: React.FC = () => {
     // const tags = trpc.tags.getPostsByTag.useQuery();
     return (
         <>
-        <button onClick={openModal} className="text-gray-500">search</button>
+        <button onClick={openModal} className="text-gray-500  hover:text-dark-secondary-500">search</button>
         <Modal
             isOpen={modalIsOpen}
             onRequestClose={closeModal}

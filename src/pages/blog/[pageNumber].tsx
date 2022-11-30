@@ -136,9 +136,9 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-
-    const count = Math.ceil(await GitHubFilesCache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
-    const postsMeta = await GitHubFilesCache.getPostsPage(numPageNumber);
+    const cache = GitHubFilesCache.getInstance();
+    const count = Math.ceil(await cache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
+    const postsMeta = await cache.getPostsByPage(numPageNumber);
     if(numPageNumber>count){
         return{
             notFound:true

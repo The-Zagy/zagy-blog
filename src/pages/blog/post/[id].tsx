@@ -8,7 +8,8 @@ import DisqusComments from '../../../components/disqus-comments/DisqusComments';
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
 import GitHubFilesCache from '../../../utils/mdx';
 async function getPost(id: string) {
-    return GitHubFilesCache.getPost(id);
+    const cache = GitHubFilesCache.getInstance();
+    return cache.getPost(id);
 }
 type PostData = AsyncReturnType<typeof getPost>;
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: Minute }> = ({ userName, userImage, createdAt, avgReadingTime }) => {

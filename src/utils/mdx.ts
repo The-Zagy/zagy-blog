@@ -136,39 +136,47 @@ const downloadAndParsePosts = async () => {
     });
 }
 
-class GithubFilesCache {
+class Cache {
     private githubFiles: Post[];
     private ranFirstTime: boolean;
+    private tags: string[];
+    private static _instance: Cache;
     constructor() {
         this.githubFiles = [];
         this.ranFirstTime = false;
+        this.tags = [];
     }
     // switch all logic of getting posts to this class only to keep crud based interface
-    public async getPosts() {
+    private async initCache() {
         // const ONE_HOUR = 1000 * 60 * 60;
-        if (this.ranFirstTime === false) {
-            console.log("first fetc --------------------------- (miss)")
-            this.githubFiles = await downloadAndParsePosts();
+        if (this.ranFirstTime === false && this.githubFiles.length === 0) {
             this.ranFirstTime = true;
-            //! we don't update with intervals anymore instead update ondemand from webhook
-            // setInterval(() => {
-            //     this.updatePosts();
-            // }, ONE_HOUR)
+            console.log("first fetc --------------------------- (miss)")
+            // init posts
+            this.githubFiles = await downloadAndParsePosts();
+            // init tags
+            const tagsTemp = new Set<string>;
+            for (const post of this.githubFiles) {
+                if (post.meta.categories === undefined) continue;
+                for (const tag of post.meta.categories) 
+                tagsTemp.add(tag);
+            }
+            this.tags = Array.from(tagsTemp);
+            console.log('im out');
         }
-        return this.githubFiles;
+        return ;
     }
     public async getCount() {
-        const posts = await this.getPosts();
-        return posts.length;
+        await this.initCache();
+        return this.githubFiles.length;
     }
     public async updatePosts(...slugs: string[]) {
         //We can later update this to only update if a signal has been recieved that the repo was updated;
 
     }
     public async getPost(id: string): Promise<Post> {
-        // console.log(`first run? ${this.ranFirstTime}`);
-        // constructor can't be async, and function get posts already check if it's the first run so only get posts in each crud to not fall in first hit
-        await this.getPosts();
+        // constructor can't be async, and function get posts already check if it's the first run so only get posts in each crud to not fail in first hit
+        await this.initCache();
         // console.log('length', this.githubFiles.length)
         const target = this.githubFiles.find((i) => {
             if (i.meta.slug === id) return i;
@@ -183,8 +191,7 @@ class GithubFilesCache {
     }
 
     public async getPostsByTag(...tags: string[]): Promise<Post[]> {
-        console.log(tags, typeof tags);
-        await this.getPosts();
+        await this.initCache();
         return this.githubFiles.filter((post) => {
             for (const tag of tags) {
                 if (post.meta.categories?.findIndex(item => tag.toLowerCase() === item.toLowerCase()) !== -1) return true;
@@ -192,21 +199,27 @@ class GithubFilesCache {
             return false;
         })
     }
-    public async getPostsPage(pageNum: number): Promise<Post[]> {
-        await this.getPosts();
+    public async getPostsByPage(pageNum: number): Promise<Post[]> {
+        await this.initCache();
         const take = NUMBER_OF_POSTS_IN_A_PAGE;
         const skip = pageNum * NUMBER_OF_POSTS_IN_A_PAGE;
         return this.githubFiles.slice(skip, skip + take);
     }
     public async getTags(): Promise<string[]> {
-        await this.getPosts();
-        const tags = new Set<string>;
-        for (const post of this.githubFiles) {
-            if (post.meta.categories === undefined) continue;
-            for (const tag of post.meta.categories) 
-                tags.add(tag);
+        await this.initCache();
+        return this.tags;
+    }
+    public async getPosts() {
+        await this.initCache();
+        return this.githubFiles;
+    }
+    static getInstance() {
+        if (this._instance) {
+            return this._instance;
         }
-        return Array.from(tags);
+
+        this._instance = new Cache();
+        return this._instance;
     }
 }
-export default new GithubFilesCache();
+export default Cache;
