@@ -189,12 +189,12 @@ class Cache {
         // console.log('return from getPost')
         return target;
     }
-
+    //TODO THIS FUNCTION NOT WORKING AT ALL JUST SAYING
     public async getPostsByTag(...tags: string[]): Promise<Post[]> {
         await this.initCache();
         return this.githubFiles.filter((post) => {
             for (const tag of tags) {
-                if (post.meta.categories?.findIndex(item => tag.toLowerCase() === item.toLowerCase()) !== -1) return true;
+                if (post.meta.categories && post.meta.categories.findIndex(item => tag.toLowerCase() === item.toLowerCase()) !== -1) return true;
             }
             return false;
         })
