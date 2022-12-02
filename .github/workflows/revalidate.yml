@@ -32,4 +32,4 @@ jobs:
           url: "https://www.zagy.tech/api/revalidate"
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
-          slugs: ${{steps.changed-files-specific.outputs.all_changed_files}}
+          files: ${{steps.changed-files-specific.outputs.all_changed_files}}
