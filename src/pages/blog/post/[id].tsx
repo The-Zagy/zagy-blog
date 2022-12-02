@@ -6,10 +6,9 @@ import { isValidDateString, dateFormat } from '../../../utils/date';
 // import { ArticleJsonLd } from 'next-seo';
 import DisqusComments from '../../../components/disqus-comments/DisqusComments';
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
-import GitHubFilesCache from '../../../utils/mdx';
+import cache from '../../../utils/cache';
 async function getPost(id: string) {
-    const cache = GitHubFilesCache.getInstance();
-    return cache.getPost(id);
+    return await cache.getPost(id);
 }
 type PostData = AsyncReturnType<typeof getPost>;
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: Minute }> = ({ userName, userImage, createdAt, avgReadingTime }) => {

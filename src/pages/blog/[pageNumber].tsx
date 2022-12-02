@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
-import GitHubFilesCache from '../../utils/mdx';
+import cache from '../../utils/cache';
 import { getContributers } from '../../utils/mdx'
 import { AsyncReturnType } from '../../utils/ts-bs';
 import { NUMBER_OF_POSTS_IN_A_PAGE } from '../../env/constants';
@@ -136,12 +136,11 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-    const cache = GitHubFilesCache.getInstance();
     const count = Math.ceil(await cache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
     const postsMeta = await cache.getPostsByPage(numPageNumber);
-    if(numPageNumber>count){
-        return{
-            notFound:true
+    if (numPageNumber > count) {
+        return {
+            notFound: true
         }
     }
     console.log(postsMeta.length)

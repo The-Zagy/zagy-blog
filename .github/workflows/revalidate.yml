@@ -3,7 +3,7 @@ on:
   # (Note: To compare changes between the last pushed commit to the remote main branch set `since_last_remote_commit: true`)
   push:
     branches:
-      - MDX
+      - main
     paths:
       - "content/**"
 jobs:
@@ -23,16 +23,13 @@ jobs:
       - name: Make an array of those file/s SHAs
         id: shas
         run: |
-          shas=()
-          for file in ${{ steps.changed-files-specific.outputs.all_changed_files }}; do
-            $shas+=`sha1sum $file | cut -d ' ' -f 1`
-          done
-          echo "shas=$(shas)"" >> $GITHUB_OUTPUT
+          echo ${{steps.changed-files-specific.outputs.all_changed_files}}
+
       - name: Send a request to revalidate those files
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: fjogeleit/http-request-action@v1
         with:
-          url: "https://ansible.io/api/v2/job_templates/84/launch/"
+          url: "https://www.zagy.tech/api/revalidate"
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
-          data: ${{steps.shas.outputs.shas}}
+          slugs: ${{steps.changed-files-specific.outputs.all_changed_files}}
