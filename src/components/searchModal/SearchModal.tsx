@@ -1,7 +1,8 @@
 import React, { useState } from  'react';
 import Modal from 'react-modal';
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import TagsBox from "../tagsBox/TagsBox";
-import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import SearchBar from '../searchBar/SearchBar';
 Modal.setAppElement("#__next");
 const SearchModal: React.FC = () => {
     const [modalIsOpen, setIsOpen] = useState(false);
@@ -27,10 +28,7 @@ const SearchModal: React.FC = () => {
             shouldCloseOnOverlayClick={true}
         >
             <button role={'close'} onClick={closeModal}><XMarkIcon className='w-10 absolute top-5 right-5' /></button>
-            <form className='flex gap-3 justify-center'>
-                <input type="text" placeholder='Search' className='w-5/6 md:w-2/3 lg:w-2/5 h-12 p-4'></input>
-                <button type='submit'><MagnifyingGlassIcon className='h-6 w-6 dark:fill-white dark:text-white' /></button>
-            </form>
+            <SearchBar />
             <TagsBox />
         </Modal>
         </>

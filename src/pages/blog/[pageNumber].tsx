@@ -51,7 +51,7 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
         </>
     )
 }
-const PostCard: React.FC<MdxMeta & { big: boolean }> =
+export const PostCard: React.FC<MdxMeta & { big: boolean }> =
     ({ title, contributers, categories = [], description, big, slug }) => {
         const author = contributers?.author;
         return (
