@@ -11,9 +11,9 @@ export type OutputPostsContextState = [
   posts: Post[],
   setPosts: (posts: Post[]) => void
 ];
-export const OutputPostsContext = createContext<OutputPostsContextState>([[], (posts) => {return;}])
+// export const OutputPostsContext = createContext<OutputPostsContextState>([[], (posts) => { return; }])
 const Home: NextPage = () => {
-  const outputPosts = useState<Post[]>([]);
+  // const outputPosts = useState<Post[]>([]);
   return (
     <>
       <Head>
@@ -22,11 +22,11 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-        <h1>Share With Us Your Knowledge On <a href="https://github.com/The-Zagy/zagy-blog/tree/main/content/blog" className="dark:text-dark-secondary-500 text-dark-primary-700">Github</a></h1>
-        <OutputPostsContext.Provider value={outputPosts}>
+        <h1>If you want to write something open a pull request here <a href="https://github.com/The-Zagy/zagy-blog/tree/main/content/blog" className="dark:text-dark-secondary-500 text-dark-primary-700">Github</a></h1>
+        {/* <OutputPostsContext.Provider value={outputPosts}>
         <SearchBar />
         <OutputPosts />
-        </OutputPostsContext.Provider>
+        </OutputPostsContext.Provider> */}
       </main>
     </>
   );
