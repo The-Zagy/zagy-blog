@@ -59,7 +59,7 @@ export const PostCard: React.FC<MdxMeta & { big: boolean }> =
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
                     <img alt={`The Author of the article: ${author?.login}}`} src={author?.avatar_url} className="rounded-full w-8 h-8 " />
                     {/* Todo add author profile link */}
-                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={``} rel="author">{author?.login}</Link></address>
+                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={`/blog/author/${author?.login}`} rel="author">{author?.login}</Link></address>
                 </div>
                 <header>
                     {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>

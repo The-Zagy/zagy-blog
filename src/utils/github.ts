@@ -1,6 +1,7 @@
 import { Octokit as createOctokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
 import { env } from '../env/server.mjs';
+import { inferAsyncReturnType } from '@trpc/server';
 
 //Setup octakit with throttling plugin as recommended in the octakit documentation
 const Octokit = createOctokit.plugin(throttling)
@@ -37,8 +38,13 @@ export async function getContributers(path: string) {
         })
         if (!commits.data || !commits.data[0]) throw new Error("Something wrong happend")
         const author = commits.data[0].author;
-        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => i.author);
-        return { author, restOfContributers }
+        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => ({ login: i.author?.login, avatar_url: i.author?.avatar_url }));
+        return {
+            author: {
+                login: author?.login,
+                avatar_url: author?.avatar_url
+            }, restOfContributers
+        }
     }
     catch (err) {
     }
@@ -60,7 +66,10 @@ export async function downloadDirList(path: string) {
 
     return data
 }
-
+export async function downloadGithubUser(login: string) {
+    return (await octokit.rest.users.getByUsername({ username: login })).data;
+}
+export type GithubUser = inferAsyncReturnType<typeof downloadGithubUser>
 export async function downloadFileBySha(sha: string) {
     const { data } = await octokit.git.getBlob({
         owner: 'The-Zagy',

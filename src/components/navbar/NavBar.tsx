@@ -1,15 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ThemeSwtich from "../themeSwitch/ThemeSwitch";
-import SearchModal from "../searchModal/SearchModal";
 import { useTheme } from "next-themes";
 import { Bars2Icon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import useOnClickOutside from "../../hooks/useOutsideListner";
 // import { trpc } from "../../utils/trpc";
 export default function Navbar() {
     const { resolvedTheme } = useTheme();
     const [mobileMenuOpend, setMobileMenuOpened] = useState<boolean>(false);
+    const navBarRef = useRef<HTMLDivElement>(null)
+    useOnClickOutside(navBarRef, () => setMobileMenuOpened(false));
     let src: string;
     switch (resolvedTheme) {
         case 'light':
@@ -45,7 +47,7 @@ export default function Navbar() {
                     <ThemeSwtich />
                 </div>
             </header>
-            <div className={clsx("fixed h-full border-r sm:hidden shadow-sm border-r-gray-100 w-1/2 transition-transform bg-white px-5 py-10 dark:bg-dark-background-500"
+            <div ref={navBarRef} className={clsx("fixed z-10 h-full border-r top-0 sm:hidden shadow-sm border-r-gray-100 w-1/2 transition-transform bg-white px-5 py-10 dark:bg-dark-background-500"
                 , { "hidden": !mobileMenuOpend })}>
                 <section className="flex-col flex gap-4 text-gray-500">
                     <Link href="/blog/1" className="hover:text-dark-secondary-500">Blog</Link>
