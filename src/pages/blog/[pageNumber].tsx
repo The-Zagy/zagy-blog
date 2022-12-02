@@ -3,7 +3,7 @@ import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 import cache from '../../utils/cache';
-import { getContributers } from '../../utils/mdx'
+import { getContributers } from '../../utils/github'
 import { AsyncReturnType } from '../../utils/ts-bs';
 import { NUMBER_OF_POSTS_IN_A_PAGE } from '../../env/constants';
 type MdxMeta = {
