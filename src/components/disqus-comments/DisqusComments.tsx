@@ -8,11 +8,9 @@ const DisqusComments: React.FC<{ pageUrl: string, pageId: string }> = ({ pageUrl
     return (
         <>
             <div id="disqus_thread" className="w-5/6 m-auto"></div>
-            <Script id="comments" strategy="lazyOnload" >{`
-   
-    ${env.NEXT_PUBLIC_ENV === "development" ? "var disqus_developer = 1;" : " "}
+            <Script id="comments" >{`   
     var disqus_config = function () {
-    this.page.url = "${"baseUrl"}/${pageUrl}"; 
+    this.page.url = "https://www.zagy.tech/${pageUrl}"; 
     this.page.identifier = "${pageId}"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
     };
   
