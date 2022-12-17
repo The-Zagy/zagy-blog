@@ -36,10 +36,19 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
     //         res.revalidate(`/blog/${page}`);
     //     }
     // }
-    console.log(req.body);
-    console.log(req.body.added);
-    console.log(req.body.deleted)
-    console.log(req.body.modified)
+    console.log(req.body, typeof req.body);
+    if (typeof req.body === "string") {
+        console.log('i was string daddy sorry i have failed you')
+        const body = JSON.parse(req.body);
+        console.log(body.added);
+        console.log(body.deleted)
+        console.log(body.modified)
+    } else {
+        console.log('im already json daddy')
+        console.log(req.body.added);
+        console.log(req.body.deleted)
+        console.log(req.body.modified)
+    }
     res.end();
 }
 export default handler;
