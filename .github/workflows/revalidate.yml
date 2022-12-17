@@ -8,28 +8,31 @@ on:
       - "content/**"
 jobs:
   build:
-    runs-on: ubuntu-latest # windows-latest | macos-latest
-    name: Send request to revalidate
+    runs-on: ubuntu-latest
+    name: get changed files
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # OR "2" -> To retrieve the preceding commit.
       - name: Get changed or created files
-        id: changed-files-specific
+        id: files
         uses: tj-actions/changed-files@v34
         with:
           files: |
             content/**
+          json: "true"
       - name: Make an array of those file/s SHAs
         id: shas
         run: |
-          echo ${{steps.changed-files-specific.outputs.all_changed_files}}
+          echo ${{steps.files.outputs.all_changed_files}}
 
       - name: Send a request to revalidate those files
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        if: steps.files.outputs.any_changed == 'true'
         uses: fjogeleit/http-request-action@v1
         with:
           url: "https://www.zagy.tech/api/revalidate"
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
-          files: ${{steps.changed-files-specific.outputs.all_changed_files}}
+          added: ${{steps.files.outputs.added_files}}
+          deleted: ${{steps.files.outputs.deleted_files}}
+          modified: ${{steps.files.outputs.modified_files}}
