@@ -14,42 +14,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// the id is not default anymore because it will be from github
 model User {
-  id String @id @default(uuid())
-  name String @db.VarChar(255)
-  userName String @unique @db.VarChar(20)
-  email String @unique @db.VarChar(255)
-  password String
-  brief String @db.VarChar(255)
-  description String
+  id String @id
+  handle String
   image String
-  role Role @default(USER)
   createdAt DateTime @default(now())
-  posts Post[]
-  tags Tag[]
+  posts contributorsOnPosts[]
 }
 model Post {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title String @db.VarChar(255)
-  image String
-  breif String @db.VarChar(255)
-  content String
-  author User @relation(fields: [authorId], references: [id])
-  authorId String
+  description String
+  bannerUrl String
+  githubPath String
+  keyWords String[]
+  code String
+  contributors contributorsOnPosts[]
   tags TagsOnPosts[]
 }
+
+model contributorsOnPosts {
+  post Post @relation(fields: [postId], references: [id])
+  postId String
+  contributor User @relation(fields: [contributorId], references: [id])
+  contributorId String
+  isAuthor Boolean
+  @@id([postId, contributorId, isAuthor])
+}
+
 model Tag {
   id String @id @default(uuid())
-  name String @unique @db.VarChar(50)
+  name String @unique
   createdAt DateTime @default(now())
-  author User @relation(fields: [authorId], references: [id])
-  authorId String
   posts TagsOnPosts[]
 }
 model TagsOnPosts {
-  assignedAt DateTime @default(now())
   post Post @relation(fields: [postId], references: [id])
   postId String
   tag Tag @relation(fields: [tagId], references: [id])
