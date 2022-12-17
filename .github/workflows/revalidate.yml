@@ -27,12 +27,10 @@ jobs:
           echo ${{steps.files.outputs.all_changed_files}}
 
       - name: Send a request to revalidate those files
-        if: steps.files.outputs.any_changed == 'true'
+        if: steps.files.outputs.any_modified == 'true'
         uses: fjogeleit/http-request-action@v1
         with:
           url: "https://www.zagy.tech/api/revalidate"
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
-          added: ${{steps.files.outputs.added_files}}
-          deleted: ${{steps.files.outputs.deleted_files}}
-          modified: ${{steps.files.outputs.modified_files}}
+          data: '{"added":"${{steps.files.outputs.added_files}}", "deleted": "${{steps.files.outputs.deleted_files}}", "modified": "${{steps.files.outputs.modified_files}}", "renamed": "${{steps.files.outputs.renamed_files}}"}'

@@ -46,15 +46,14 @@ model contributorsOnPosts {
 }
 
 model Tag {
-  id String @id @default(uuid())
-  name String @unique
+  name String @id
   createdAt DateTime @default(now())
   posts TagsOnPosts[]
 }
 model TagsOnPosts {
   post Post @relation(fields: [postId], references: [id])
   postId String
-  tag Tag @relation(fields: [tagId], references: [id])
+  tag Tag @relation(fields: [tagId], references: [name])
   tagId String
   @@id([postId, tagId])
 }

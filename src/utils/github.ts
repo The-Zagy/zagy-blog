@@ -38,11 +38,12 @@ export async function getContributers(path: string) {
         })
         if (!commits.data || !commits.data[0]) throw new Error("Something wrong happend")
         const author = commits.data[0].author;
-        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => ({ login: i.author?.login, avatar_url: i.author?.avatar_url }));
+        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => ({ login: i.author?.login, avatar_url: i.author?.avatar_url, id: i.author?.id })).filter((val, i, arr) => { return !arr.find((i)=>i.id===val.id)});
         return {
             author: {
                 login: author?.login,
-                avatar_url: author?.avatar_url
+                avatar_url: author?.avatar_url,
+                id: author?.id
             }, restOfContributers
         }
     }
