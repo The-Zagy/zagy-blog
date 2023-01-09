@@ -1,8 +1,9 @@
 import { publicProcedure, router } from '../trpc';
-import cache from '../../../utils/cache';
+import { prisma } from '../../db/client';
+const getTags = async () => {
+    return await prisma.tag.findMany({select:{name:true}});
+}
 export const tagsRouter = router({
     getTags: publicProcedure
-        .query(async () => {
-            return await cache.getTags();
-        })
+        .query(getTags)
 })

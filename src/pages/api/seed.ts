@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
-// import cache from '../../utils/cache';
-// import { NUMBER_OF_POSTS_IN_A_PAGE } from "../../env/constants";
-
 import { main } from "../../../prisma/seed";
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     try {
+        if (req.body.password !== process.env.SEED_PASS) 
+            throw new Error('bitch go fuck yourself');
         await main();
     } catch (e) {
-        console.log(e);
+        console.log('bitch tried to hack us', e);
     }
     res.end();
 }

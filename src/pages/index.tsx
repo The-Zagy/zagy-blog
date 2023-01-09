@@ -1,19 +1,17 @@
 import { createContext, useState } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import SearchBar from "../components/searchBar/SearchBar";
-import { trpc } from "../utils/trpc";
-import { Post } from "../utils/mdx";
 import OutputPosts from "../components/outputPosts/OutputPosts";
+import { PostsFromQuery } from "../server/trpc/router/postsByTags";
 // will create context to flow the data between search, tags box, and featred posts to outputPosts without passing props
 export type OutputPostsContextState = [
-  posts: Post[],
-  setPosts: (posts: Post[]) => void
+  posts:PostsFromQuery,
+  setPosts: (posts: PostsFromQuery) => void
 ];
-// export const OutputPostsContext = createContext<OutputPostsContextState>([[], (posts) => { return; }])
+export const OutputPostsContext = createContext<OutputPostsContextState>([[], (posts) => { return; }])
 const Home: NextPage = () => {
-  // const outputPosts = useState<Post[]>([]);
+  const outputPosts = useState<PostsFromQuery>([]);
   return (
     <>
       <Head>
@@ -23,10 +21,10 @@ const Home: NextPage = () => {
       </Head>
       <main className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
         <h1>If you want to write something open a pull request here <a href="https://github.com/The-Zagy/zagy-blog/tree/main/content/blog" className="dark:text-dark-secondary-500 text-dark-primary-700">Github</a></h1>
-        {/* <OutputPostsContext.Provider value={outputPosts}>
+        <OutputPostsContext.Provider value={outputPosts}>
         <SearchBar />
         <OutputPosts />
-        </OutputPostsContext.Provider> */}
+        </OutputPostsContext.Provider>
       </main>
     </>
   );
