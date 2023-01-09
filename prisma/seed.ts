@@ -16,7 +16,7 @@ export async function main() {
                 description: file.meta.description,
                 githubPath: file.meta.githubPath,
                 code: file.code,
-                keyWords: file.meta.meta.keywords
+                keyWords: file.meta?.meta?.keywords || []
             }
         })
         // add each file already exist tags
@@ -52,7 +52,7 @@ export async function main() {
                     id: file.meta.contributers.author.id?.toString() as string
                 },
                 create: {
-                    id: file.meta.contributers.author.id?.toString() as string ,
+                    id: file.meta.contributers.author.id?.toString() as string,
                     handle: file.meta.contributers.author.login as string,
                     image: file.meta.contributers.author.avatar_url as string,
                     posts: {
@@ -61,7 +61,7 @@ export async function main() {
                             postId: post.id
                         }
                     }
-                    
+
                 },
                 update: {
                     posts: {

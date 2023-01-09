@@ -2,6 +2,8 @@ import { Octokit as createOctokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
 import { env } from '../env/server.mjs';
 import { inferAsyncReturnType } from '@trpc/server';
+import { Githubfile } from './mdx.js';
+import path from 'path';
 
 //Setup octakit with throttling plugin as recommended in the octakit documentation
 const Octokit = createOctokit.plugin(throttling)
@@ -38,7 +40,7 @@ export async function getContributers(path: string) {
         })
         if (!commits.data || !commits.data[0]) throw new Error("Something wrong happend")
         const author = commits.data[0].author;
-        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => ({ login: i.author?.login, avatar_url: i.author?.avatar_url, id: i.author?.id })).filter((val, i, arr) => { return !arr.find((i)=>i.id===val.id)});
+        const restOfContributers = commits.data.slice(1, commits.data.length).map((i) => ({ login: i.author?.login, avatar_url: i.author?.avatar_url, id: i.author?.id })).filter((val, i, arr) => { return !arr.find((i) => i.id === val.id) });
         return {
             author: {
                 login: author?.login,
@@ -79,4 +81,37 @@ export async function downloadFileBySha(sha: string) {
     })
     const encoding = data.encoding as Parameters<typeof Buffer.from>['1']
     return Buffer.from(data.content, encoding).toString()
+}
+export type RawMDX = {
+    mdxFile: string,
+    files?: { [k: string]: string }
+}
+export async function downloadFileOrDirectory(fileOrDirectory: Githubfile): Promise<RawMDX | null> {
+    if (fileOrDirectory.type === "file") {
+        return {
+            mdxFile: await downloadFileBySha(fileOrDirectory.sha)
+        }
+    }
+    else if (fileOrDirectory.type === "dir") {
+        const directoryContent = await downloadDirList(fileOrDirectory.path);
+        const mdxFileIndex = directoryContent.findIndex(i => path.extname(i.path) === '.mdx');
+        if (mdxFileIndex === -1) throw new Error(`Couldn't find an mdx file in the directory ${fileOrDirectory.path}`);
+        const mdxFile = directoryContent.splice(mdxFileIndex, 1).pop();
+        if (mdxFile === undefined) throw new Error(`Couldn't find an mdx file in the directory ${fileOrDirectory.path}`);
+        const mdxFileContent = await downloadFileBySha(mdxFile.sha);
+        const files = await Promise.all(directoryContent.map(async (file) => {
+            return {
+                ["./" + file.name]: await downloadFileBySha(file.sha)
+            }
+        }))
+        return {
+            mdxFile: mdxFileContent,
+            files: files.reduce((acc, cur) => {
+                return ({ ...acc, ...cur })
+            }, {})
+        }
+    }
+    else {
+        return null
+    }
 }
