@@ -22,22 +22,25 @@ model User {
   createdAt DateTime @default(now())
   posts contributorsOnPosts[]
 }
+// note that github path is the id for any file to make revalidate easier, and because it's unique baby
 model Post {
-  id        String   @id @default(uuid())
+  id        String    @default(uuid())
+  slug String @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   title String @db.VarChar(255)
   description String
   bannerUrl String
-  githubPath String
+  githubPath String @unique
   keyWords String[]
   code String
   contributors contributorsOnPosts[]
   tags TagsOnPosts[]
+  @@id([id, slug])
 }
 
 model contributorsOnPosts {
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [slug])
   postId String
   contributor User @relation(fields: [contributorId], references: [id])
   contributorId String
@@ -51,7 +54,7 @@ model Tag {
   posts TagsOnPosts[]
 }
 model TagsOnPosts {
-  post Post @relation(fields: [postId], references: [id])
+  post Post @relation(fields: [postId], references: [slug])
   postId String
   tag Tag @relation(fields: [tagId], references: [name])
   tagId String

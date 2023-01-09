@@ -2,22 +2,22 @@ import clsx from 'clsx';
 import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
-import cache from '../../utils/cache';
+import { prisma } from "../../server/db/client";
 import { getContributers } from '../../utils/github'
 import { AsyncReturnType } from '../../utils/ts-bs';
 import { NUMBER_OF_POSTS_IN_A_PAGE } from '../../env/constants';
-type MdxMeta = {
-    title: string,
-    description: string,
-    data: string,
-    slug: string,
-    bannerUrl: string,
-    categories?: string[]
-    meta: {
-        keywords: string[],
-    }
-    contributers: AsyncReturnType<typeof getContributers>
-}
+// type MdxMeta = {
+//     title: string,
+//     description: string,
+//     data: string,
+//     slug: string,
+//     bannerUrl: string,
+//     categories?: string[]
+//     meta: {
+//         keywords: string[],
+//     }
+//     contributers: AsyncReturnType<typeof getContributers>
+// }
 const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount, currentPage }) => {
     const list = [];
     let rightEplises = false;
@@ -51,15 +51,16 @@ const Pages: React.FC<{ pageCount: number, currentPage: number }> = ({ pageCount
         </>
     )
 }
-export const PostCard: React.FC<MdxMeta & { big: boolean }> =
-    ({ title, contributers, categories = [], description, big, slug }) => {
-        const author = contributers?.author;
+export const PostCard: React.FC<PostMeta & { big: boolean }> =
+    ({ title, contributors, tags = [], description, big, slug }) => {
+        // contributors is array because of prisma return array not one 
+        const author = contributors[0]?.contributor;
         return (
             <article className={clsx('flex flex-col w-full p-6 gap-3 group', { "md:col-span-2 lg:col-span-2 row-span-2": big }, { "shadow-sm border dark:border-dark-muted-500 hover:shadow-lg hover:translate-y-px transition-all border-gray-100": !big })}>
                 <div className="flex flex-row gap-2 relative items-center before:mr-3 before:bg-gray-300 before:h-9 before:relative before:rotate-12 before:w-px ">
-                    <img alt={`The Author of the article: ${author?.login}}`} src={author?.avatar_url} className="rounded-full w-8 h-8 " />
+                    <img alt={`The Author of the article: ${author?.handle}}`} src={author?.image} className="rounded-full w-8 h-8 " />
                     {/* Todo add author profile link */}
-                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={`/blog/author/${author?.login}`} rel="author">{author?.login}</Link></address>
+                    <address className='font-bold text-gray-700 dark:text-dark-text-700 text-sm'><Link href={`/blog/author/${author?.handle}`} rel="author">{author?.handle}</Link></address>
                 </div>
                 <header>
                     {<h2 className={clsx('font-bold group-hover:text-blue-500 dark:group-hover:text-dark-secondary-500 dark:hover:text-dark-secondary-500', { "text-4xl md:text-6xl": big }, { "text-xl": !big })}>
@@ -67,9 +68,9 @@ export const PostCard: React.FC<MdxMeta & { big: boolean }> =
                     </h2>}
                 </header>
                 <div className='flex flex-row flex-wrap gap-2'>
-                    {categories.map((tag => {
+                    {tags.map((tag => {
                         return (
-                            <div key={tag} className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag}</div>
+                            <div key={tag.tag.name} className=' w-auto px-2 cursor-pointer dark:bg-dark-primary-500 bg-gray-200 text-gray-600 font-mono font-semibold text-sm'>{tag.tag.name}</div>
                         )
                     }))}
                 </div>
@@ -88,7 +89,7 @@ export const PostCard: React.FC<MdxMeta & { big: boolean }> =
     }
 const PostsHome: React.FC<{
     count: number,
-    mdPostsMeta: MdxMeta[],
+    mdPostsMeta: PostMeta[],
     pageNumber: number
 }> = ({ count, mdPostsMeta, pageNumber }) => {
     return (
@@ -128,6 +129,45 @@ export const getStaticPaths: GetStaticPaths<{ slug: string }> = async () => {
         fallback: 'blocking' //indicates the type of fallback
     }
 }
+const getPostsByPage = async (pageNumber: number) => {
+    const postsMeta = await prisma.post.findMany({
+        skip: pageNumber * NUMBER_OF_POSTS_IN_A_PAGE,
+        take: NUMBER_OF_POSTS_IN_A_PAGE,
+        select: {
+            id: true,
+            slug: true,
+            title: true,
+            contributors: {where: {
+                isAuthor: true
+            },
+
+            take: 1,
+            select: {
+                contributor: {
+                    select: {
+                        handle: true,
+                        image: true,
+                    }
+                }
+            }
+        },
+            tags: {
+                select: {
+                    tag: {
+                        select:{
+                            name: true,
+                        }
+                    }
+                }
+            },
+            description: true,
+        }
+    })
+    console.dir(postsMeta, {depth: 4});
+    return postsMeta;
+}
+type PostsMeta = AsyncReturnType<typeof getPostsByPage>;
+type PostMeta = PostsMeta[0];
 export async function getStaticProps({ params }: { params: { pageNumber: string } }) {
     const { pageNumber } = params;
     const numPageNumber = Number(pageNumber) - 1;
@@ -136,22 +176,20 @@ export async function getStaticProps({ params }: { params: { pageNumber: string 
             notFound: true
         }
     }
-    const count = Math.ceil(await cache.getCount() / NUMBER_OF_POSTS_IN_A_PAGE);
-    const postsMeta = await cache.getPostsByPage(numPageNumber);
-    if (numPageNumber > count) {
+    const count = Math.ceil(await prisma.post.count() / NUMBER_OF_POSTS_IN_A_PAGE);
+    const postsMeta = await getPostsByPage(numPageNumber);    
+    // const postsMeta = await cache.getPostsByPage(numPageNumber);
+    if (postsMeta.length === 0) {
         return {
             notFound: true
         }
     }
-    console.log(postsMeta.length)
-    const DAY_IN_SECONDS = 24 * 60 * 60;
     return {
         props: {
-            mdPostsMeta: JSON.parse(JSON.stringify(postsMeta.map(i => i.meta))),
+            mdPostsMeta: JSON.parse(JSON.stringify(postsMeta)),
             count,
             pageNumber: numPageNumber + 1
         },
-        revalidate: DAY_IN_SECONDS / 24
     }
 }
 export default PostsHome

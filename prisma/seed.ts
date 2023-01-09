@@ -11,6 +11,7 @@ export async function main() {
     for (const file of githubFiles) {
         const post = await prisma.post.create({
             data: {
+                slug: file.meta.githubPath.split('/').pop() as string,
                 title: file.meta.title,
                 bannerUrl: file.meta.bannerUrl || 'str',
                 description: file.meta.description,
@@ -30,14 +31,14 @@ export async function main() {
                         name: tag,
                         posts: {
                             create: {
-                                postId: post.id
+                                postId: post.slug
                             }
                         }
                     },
                     update: {
                         posts: {
                             create: {
-                                postId: post.id
+                                postId: post.slug
                             }
                         }
                     }
@@ -58,7 +59,7 @@ export async function main() {
                     posts: {
                         create: {
                             isAuthor: true,
-                            postId: post.id
+                            postId: post.slug
                         }
                     }
 
@@ -67,7 +68,7 @@ export async function main() {
                     posts: {
                         create: {
                             isAuthor: true,
-                            postId: post.id
+                            postId: post.slug
                         }
                     }
                 }

@@ -48,7 +48,7 @@ export const parsePost = async (source: RawMDX, githubMeta: Githubfile) => {
             code,
             meta: {
                 ...frontmatter,
-                slug: path.parse(githubMeta?.name as string).name,
+                slug: path.parse(githubMeta?.path.split("/").pop() as string).name,
                 contributers,
                 githubPath: githubMeta?.path
             }
@@ -57,22 +57,26 @@ export const parsePost = async (source: RawMDX, githubMeta: Githubfile) => {
 
 }
 export const downloadAndParsePosts = async () => {
-    if (env.NODE_ENV === "development") {
+    if (env.NODE_ENV === "test") {
         const files = [];
         const dirs = [];
         const rawmdx: RawMDX[] = [];
+        const paths: string[] = [];
         const contentPath = path.resolve(__dirname, "../../../../content/blog")
-        console.log()
         const filesAndDirs = await readdir(contentPath);
         for (const dirOrFile of filesAndDirs) {
             if (path.extname(dirOrFile) === "") dirs.push(dirOrFile);
             else files.push(dirOrFile);
         }
         for (const file of files) {
-            rawmdx.push({ mdxFile: await readFile(path.resolve(contentPath, file), { encoding: "utf-8" }) })
+            const pathTemp = path.resolve(contentPath, file)
+            paths.push(pathTemp)
+            rawmdx.push({ mdxFile: await readFile(pathTemp, { encoding: "utf-8" }) })
         }
         for (const dir of dirs) {
-            const dirContent = await readdir(path.resolve(contentPath, dir));
+            const pathTemp = path.resolve(contentPath, dir);
+            paths.push(pathTemp);
+            const dirContent = await readdir(pathTemp);
 
             const mdxFileIndex = dirContent.findIndex((i => path.extname(i) === ".mdx"));
             if (mdxFileIndex === -1) throw new Error("I don't know 1");
@@ -91,7 +95,7 @@ export const downloadAndParsePosts = async () => {
             })
         }
 
-        const posts = await Promise.all(rawmdx.map(async (source, i) => await parsePost(source, { path: "/content/blog", name: "blog" } as Githubfile))) as Post[];
+        const posts = await Promise.all(rawmdx.map(async (source, i) => await parsePost(source, { path: paths[i], name: "blog" } as Githubfile))) as Post[];
         console.dir(posts, { depth: 5 })
         return (posts).sort((a, b) => {
             const dateA = new Date(a.meta.date);

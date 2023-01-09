@@ -57,7 +57,7 @@ export async function downloadDirList(path: string) {
         owner: 'The-Zagy',
         repo: 'zagy-blog',
         path,
-        ref: "MDX"
+        ref: "main"
     })
     const data = resp.data
 
