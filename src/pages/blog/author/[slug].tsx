@@ -1,7 +1,6 @@
-import cache from "../../../utils/cache";
 import { downloadGithubUser, GithubUser } from "../../../utils/github";
 import { Post } from "../../../utils/mdx";
-
+import { prisma } from "../../../server/db/client";
 export default function Author({ posts, author }: { posts: Post[], author: GithubUser }) {
     return <div className="grid grid-rows-3 grid-flow-col w-full py-10 px-30 gap-4">
         <div className="row-span-3 col-span-1 flex flex-col justify-center items-center">
@@ -14,15 +13,32 @@ export default function Author({ posts, author }: { posts: Post[], author: Githu
         <div className="row-span-2 col-span-2 ">03</div>
     </div>
 }
+const getPostsByUser = async (handle: string) => {
+    return await prisma.user.findFirst({
+        where: {
+            handle
+        },
+        select: {
+            handle: true,
+            image: true,
+            posts: {
+                where: {
+                    isAuthor: true,
+                },
+                include: {
+                    post: true,
+                }
+            }
+        }
+    })
+}
 export async function getServerSideProps({ params }: { params: { slug: string } }) {
     const { slug } = params;
-    const posts = await cache.getPosts();
-    const postsByThisAuthor = posts.filter(post => post.meta.contributers?.author?.login === slug);
-    const author = await downloadGithubUser(slug);
+    const user = await getPostsByUser(slug);
     return {
         props: {
-            postsByThisAuthor: JSON.parse(JSON.stringify(postsByThisAuthor)),
-            author: JSON.parse(JSON.stringify(author))
+            postsByThisAuthor: JSON.parse(JSON.stringify(user?.posts)),
+            author: JSON.parse(JSON.stringify(user))
         }, // will be passed to the page component as props
     }
 }

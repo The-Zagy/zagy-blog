@@ -3,7 +3,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import SearchBar from "../components/searchBar/SearchBar";
 import OutputPosts from "../components/outputPosts/OutputPosts";
-import { PostsFromQuery } from "../server/trpc/router/postsByTags";
+import { PostsFromQuery } from "../server/trpc/router/posts";
 // will create context to flow the data between search, tags box, and featred posts to outputPosts without passing props
 export type OutputPostsContextState = [
   posts:PostsFromQuery,
