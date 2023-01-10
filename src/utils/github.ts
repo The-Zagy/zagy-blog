@@ -36,7 +36,7 @@ export async function getContributers(path: string) {
             owner: "The-Zagy",
             repo: "zagy-blog",
             path: path,
-            sha: "MDX"
+            sha: "main"
         })
         if (!commits.data || !commits.data[0]) throw new Error("Something wrong happend")
         const author = commits.data[0].author;
@@ -52,7 +52,13 @@ export async function getContributers(path: string) {
     catch (err) {
     }
 }
-export async function downloadDirList(path: string) {
+
+/**
+ * 
+ * @param path the folder relative path (relative to root of the repository) 
+ * @returns an array of the files metadata in the specified path directory
+ */
+export async function downloadFolderMetaData(path: string) {
     const resp = await octokit.repos.getContent({
         owner: 'The-Zagy',
         repo: 'zagy-blog',
@@ -69,10 +75,21 @@ export async function downloadDirList(path: string) {
 
     return data
 }
+/**
+ * 
+ * @param login user handle
+ * @returns object containing info about the user
+ */
 export async function downloadGithubUser(login: string) {
     return (await octokit.rest.users.getByUsername({ username: login })).data;
 }
 export type GithubUser = inferAsyncReturnType<typeof downloadGithubUser>
+/**
+ * 
+ * @param sha 
+ * @returns the actual content of the file returned as a string
+ */
+export type FileContributors = inferAsyncReturnType<typeof getContributers>;
 export async function downloadFileBySha(sha: string) {
     const { data } = await octokit.git.getBlob({
         owner: 'The-Zagy',
@@ -82,18 +99,30 @@ export async function downloadFileBySha(sha: string) {
     const encoding = data.encoding as Parameters<typeof Buffer.from>['1']
     return Buffer.from(data.content, encoding).toString()
 }
+
 export type RawMDX = {
     mdxFile: string,
-    files?: { [k: string]: string }
+    files?: { [k: string]: string },
+    contributors: FileContributors,
+    githubPath: string,
+    slug: string
 }
+/**
+ * 
+ * @param fileOrDirectory (The file metadata provided from github)
+ * @returns object containing the text content of the mdx file along with an object containing the other jsx/tsx/js files or null
+ */
 export async function downloadFileOrDirectory(fileOrDirectory: Githubfile): Promise<RawMDX | null> {
     if (fileOrDirectory.type === "file") {
         return {
-            mdxFile: await downloadFileBySha(fileOrDirectory.sha)
+            mdxFile: await downloadFileBySha(fileOrDirectory.sha),
+            contributors: await getContributers(fileOrDirectory.path),
+            githubPath: fileOrDirectory.path,
+            slug: path.parse(fileOrDirectory.path.split("/").pop() as string).name,
         }
     }
     else if (fileOrDirectory.type === "dir") {
-        const directoryContent = await downloadDirList(fileOrDirectory.path);
+        const directoryContent = await downloadFolderMetaData(fileOrDirectory.path);
         const mdxFileIndex = directoryContent.findIndex(i => path.extname(i.path) === '.mdx');
         if (mdxFileIndex === -1) throw new Error(`Couldn't find an mdx file in the directory ${fileOrDirectory.path}`);
         const mdxFile = directoryContent.splice(mdxFileIndex, 1).pop();
@@ -106,6 +135,9 @@ export async function downloadFileOrDirectory(fileOrDirectory: Githubfile): Prom
         }))
         return {
             mdxFile: mdxFileContent,
+            contributors: await getContributers(fileOrDirectory.path),
+            githubPath: fileOrDirectory.path,
+            slug: path.parse(fileOrDirectory.path.split("/").pop() as string).name,
             files: files.reduce((acc, cur) => {
                 return ({ ...acc, ...cur })
             }, {})

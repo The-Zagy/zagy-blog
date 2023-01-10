@@ -32,8 +32,8 @@ export default function Navbar() {
                         <Image src={src} alt='logo' width="200" height="200" />
                     </Link>
                 </section>
-                <section className="sm:flex hidden flex-row justify-center gap-10 md:w-3/4 text-gray-500">
-                    <Link href="/blog/1" className="hover:text-dark-secondary-500">Blog</Link>
+                <section className="sm:flex hidden flex-row justify-center gap-10 md:w-full text-gray-500">
+                    <Link href="/blog/1" className="hover:text-dark-secondary-500">All Posts</Link>
                     <Link href="" className="hover:text-dark-secondary-500">Arcade</Link>
                     <Link href="/about" className="hover:text-dark-secondary-500">About Us</Link>
                 </section>
@@ -50,7 +50,7 @@ export default function Navbar() {
             <div ref={navBarRef} className={clsx("fixed z-10 h-full border-r top-0 sm:hidden shadow-sm border-r-gray-100 w-1/2 transition-transform bg-white px-5 py-10 dark:bg-dark-background-500"
                 , { "hidden": !mobileMenuOpend })}>
                 <section className="flex-col flex gap-4 text-gray-500">
-                    <Link href="/blog/1" className="hover:text-dark-secondary-500">Blog</Link>
+                    <Link href="/blog/1" className="hover:text-dark-secondary-500">All Posts</Link>
                     <Link href="" className="hover:text-dark-secondary-500">Arcade</Link>
                     <Link href="/about" className="hover:text-dark-secondary-500">About Us</Link>
                     <ThemeSwtich />
