@@ -1,6 +1,6 @@
 import { downloadGithubUser, GithubUser } from "../../../utils/github";
-import { Post } from "../../../utils/mdx";
 import { prisma } from "../../../server/db/client";
+import type { Post } from "@prisma/client";
 export default function Author({ posts, author }: { posts: Post[], author: GithubUser }) {
     return <div className="grid grid-rows-3 grid-flow-col w-full py-10 px-30 gap-4">
         <div className="row-span-3 col-span-1 flex flex-col justify-center items-center">
