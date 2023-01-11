@@ -40,9 +40,9 @@ model Post {
 }
 
 model contributorsOnPosts {
-  post Post @relation(fields: [postId], references: [slug])
+  post Post @relation(fields: [postId], references: [slug], onDelete: Cascade)
   postId String
-  contributor User @relation(fields: [contributorId], references: [id])
+  contributor User @relation(fields: [contributorId], references: [id], onDelete: Cascade)
   contributorId String
   isAuthor Boolean
   @@id([postId, contributorId, isAuthor])
@@ -54,7 +54,7 @@ model Tag {
   posts TagsOnPosts[]
 }
 model TagsOnPosts {
-  post Post @relation(fields: [postId], references: [slug])
+  post Post @relation(fields: [postId], references: [slug], onDelete: Cascade)
   postId String
   tag Tag @relation(fields: [tagId], references: [name])
   tagId String

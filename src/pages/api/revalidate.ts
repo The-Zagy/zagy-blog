@@ -1,53 +1,68 @@
 import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
-// import cache from '../../utils/cache';
 // import { NUMBER_OF_POSTS_IN_A_PAGE } from "../../env/constants";
+import { Githubfile, downloadAndParsePosts, } from "../../utils/mdx";
+import { upsertPost, upsertCategoryToPost, upsertUserToPost, deletePost } from "../../utils/db";
 
 // TODO DADDY PLEASE USE JWT
 const verifyToken = async (_token: string): Promise<boolean> => {
     return true;
 }
+// assume for now that req body will be that structure 
+interface RevalidateReqStructure  {
+    added: string[];
+    deleted: string[];
+    modified: string[];
+    renamed: string[];
+}
+// function to create filter function for downloadAndParsePosts
+const createPostsFilter = (body: RevalidateReqStructure) => {
+    return (val: Githubfile): boolean => {
+        const hsh: {[k: string]: boolean} = {};
+        for (const file of body.added) {
+            hsh[file] = true;
+        }
+        for (const file of body.modified) {
+            hsh[file] = true;
+        }
+        return val.path in  hsh;
+    }
+}
+/**
+ * how the re-validation will work
+ * if new file created or file updated download and parse this file from github 
+ * deleted file only delete it from the db
+ * !need to know how the workflow map renamed and modified files
+*/
+// todo the handler is copy paste from seed main function so you can use the seed function here
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || !await verifyToken(req.headers.authorization)) {
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
-    // if (!req.body.files || typeof req.body.file !== "string") return res.status(400).json({ messege: "string space separated file paths must be provided" })
-    // const filePaths = req.body.files.split(" ");
-
-    // const homePagesToBeRevalidated = new Set<number>;
-    // // await cache.updatePosts(/* postToBeUpdated */);
-    // for (const path of filePaths) {
-    //     try {
-    //         // await GitHubFilesCache.updatePosts(/* postToBeUpdated */);
-    //         const githubFiles = await cache.getPosts();
-    //         const fileIndex = githubFiles.findIndex((i => i.meta.githubPath === path));
-    //         const isNewlyCreated = fileIndex === githubFiles.length - 1 ? true : false;
-    //         await cache.updatePosts(path);
-    //         if (!isNewlyCreated) {
-    //             res.revalidate(`/blog/post/${githubFiles[fileIndex]?.meta.slug}`);
-    //         }
-    //         const pageNumber = Math.floor(fileIndex / NUMBER_OF_POSTS_IN_A_PAGE + 1) + 1;
-    //         homePagesToBeRevalidated.add(pageNumber);
-    //         return res.status(200).json({ messege: `update post ${githubFiles[fileIndex]?.meta.slug} and page number ${pageNumber}` });
-    //     } catch (e) {
-    //         console.log(e)
-    //         res.status(500).json({ message: 'error happend unknown' });
-    //     }
-    //     for (const page of homePagesToBeRevalidated) {
-    //         res.revalidate(`/blog/${page}`);
-    //     }
-    // }
-    console.log(req.body, typeof req.body);
-    if (typeof req.body === "string") {
-        console.log('i was string daddy sorry i have failed you')
-        const body = JSON.parse(req.body);
-        console.log(body.added);
-        console.log(body.deleted)
-        console.log(body.modified)
-    } else {
-        console.log('im already json daddy')
-        console.log(req.body.added);
-        console.log(req.body.deleted)
-        console.log(req.body.modified)
+    // remove deleted files from database and revalidate next.js cache
+    for (const deletedPostPath of req.body.deleted as string[]) {
+        const slug = deletedPostPath.split('/').at(-1) as string;
+        await deletePost(slug);
+        res.revalidate(`/blog/post/${slug}`);
+    }
+    if (req.body.added.length + req.body.modified.length > 0) {
+        // download, parse and update database with the new created/modified files, and revalidate next cache for each post
+        const posts = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
+        for (const file of posts) {
+            const post = await upsertPost(file);
+            //update cache
+            res.revalidate(`/blog/post/${post.slug}`)
+            // add each file already exist tags
+            if (file.meta.categories) {
+                for (const tag of file.meta.categories) {
+                    await upsertCategoryToPost(tag, post.slug)
+                }
+            }
+            // connect posts with autohrs and contributors
+            if (file.meta.contributers) {
+                // create author
+                await upsertUserToPost(file.meta.contributers, post.slug);
+            }
+        }
     }
     res.end();
 }

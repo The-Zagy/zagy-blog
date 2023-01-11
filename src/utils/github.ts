@@ -30,10 +30,11 @@ const octokit = new Octokit({
         },
     },
 })
+//TODO change owner back to "The-Zagy" this was for testing only using the fork
 export async function getContributers(path: string) {
     try {
         const commits = await octokit.repos.listCommits({
-            owner: "The-Zagy",
+            owner: "nagy-nabil",
             repo: "zagy-blog",
             path: path,
             sha: "main"
@@ -58,9 +59,11 @@ export async function getContributers(path: string) {
  * @param path the folder relative path (relative to root of the repository) 
  * @returns an array of the files metadata in the specified path directory
  */
+
+//TODO change owner back to "The-Zagy" this was for testing only using the fork
 export async function downloadFolderMetaData(path: string) {
     const resp = await octokit.repos.getContent({
-        owner: 'The-Zagy',
+        owner: 'nagy-nabil',
         repo: 'zagy-blog',
         path,
         ref: "main"
@@ -90,9 +93,10 @@ export type GithubUser = inferAsyncReturnType<typeof downloadGithubUser>
  * @returns the actual content of the file returned as a string
  */
 export type FileContributors = inferAsyncReturnType<typeof getContributers>;
+//TODO change owner back to "The-Zagy" this was for testing only using the fork
 export async function downloadFileBySha(sha: string) {
     const { data } = await octokit.git.getBlob({
-        owner: 'The-Zagy',
+        owner: 'nagy-nabil',
         repo: 'zagy-blog',
         file_sha: sha,
     })

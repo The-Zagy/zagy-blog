@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client'
 import { downloadAndParsePosts } from '../src/utils/mdx';
-const prisma = new PrismaClient()
+import { upsertPost, upsertCategoryToPost, upsertUserToPost } from '../src/utils/db';
 // function rand(min: number, max: number) {
 //     min = Math.ceil(min);
 //     max = Math.floor(max);
@@ -9,71 +8,18 @@ const prisma = new PrismaClient()
 export async function main() {
     const githubFiles = await downloadAndParsePosts();
     for (const file of githubFiles) {
-        const post = await prisma.post.create({
-            data: {
-                slug: file.meta.githubPath.split('/').pop() as string,
-                title: file.meta.title,
-                bannerUrl: file.meta.bannerUrl || 'str',
-                description: file.meta.description,
-                githubPath: file.meta.githubPath,
-                code: file.code,
-                keyWords: file.meta?.meta?.keywords || []
-            }
-        })
+        const post = await upsertPost(file);
         // add each file already exist tags
         if (file.meta.categories) {
             for (const tag of file.meta.categories) {
-                await prisma.tag.upsert({
-                    where: {
-                        name: tag
-                    },
-                    create: {
-                        name: tag,
-                        posts: {
-                            create: {
-                                postId: post.slug
-                            }
-                        }
-                    },
-                    update: {
-                        posts: {
-                            create: {
-                                postId: post.slug
-                            }
-                        }
-                    }
-                })
+                await upsertCategoryToPost(tag, post.slug)
             }
         }
         // connect posts with autohrs and contributors
         if (file.meta.contributers) {
             // create author
-            await prisma.user.upsert({
-                where: {
-                    id: file.meta.contributers.author.id?.toString() as string
-                },
-                create: {
-                    id: file.meta.contributers.author.id?.toString() as string,
-                    handle: file.meta.contributers.author.login as string,
-                    image: file.meta.contributers.author.avatar_url as string,
-                    posts: {
-                        create: {
-                            isAuthor: true,
-                            postId: post.slug
-                        }
-                    }
-
-                },
-                update: {
-                    posts: {
-                        create: {
-                            isAuthor: true,
-                            postId: post.slug
-                        }
-                    }
-                }
-            })
-            console.log(file.meta.contributers.restOfContributers);
+            await upsertUserToPost(file.meta.contributers, post.slug);
+            // console.log(file.meta.contributers.restOfContributers);
             // for (const cont of file.meta.contributers.restOfContributers) {
             //     await prisma.user.upsert({
             //         where: {

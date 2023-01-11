@@ -11,8 +11,8 @@ import { env } from '../env/server.mjs';
 import { readFile, readdir } from 'fs/promises';
 
 export type Githubfile = AsyncReturnType<typeof downloadFolderMetaData>[0]
-
-type ParsedPost = {
+export type PostContributors = AsyncReturnType<typeof getContributers>; 
+export type ParsedPost = {
     code: string
     meta: {
         title: string,
@@ -25,7 +25,7 @@ type ParsedPost = {
         meta: {
             keywords: string[],
         }
-        contributers: AsyncReturnType<typeof getContributers>
+        contributers: PostContributors
     }
 }
 
@@ -55,7 +55,11 @@ export const parsePost = async (source: RawMDX) => {
     )
 
 }
-export const downloadAndParsePosts = async () => {
+export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolean) => {
+    // if no filter function provided assume user want all folder content
+    if (filter === undefined) {
+        filter = (val) => true;
+    }
     // if (env.NODE_ENV === "test") {
     //     const files = [];
     //     const dirs = [];
@@ -106,7 +110,7 @@ export const downloadAndParsePosts = async () => {
     // }
 
     const dir = await downloadFolderMetaData("/content/blog");
-    const filesAndDirs = (await Promise.all(dir.map(async (file) => downloadFileOrDirectory(file))))
+    const filesAndDirs = (await Promise.all(dir.filter(filter).map(async (file) => downloadFileOrDirectory(file))))
         .filter((i): i is RawMDX => i !== null);
     console.dir(filesAndDirs, { depth: 5 })
     const posts = Promise.all(filesAndDirs.map(async (source) => await parsePost(source))) as Promise<ParsedPost[]>;
