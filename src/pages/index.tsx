@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { SearchPosts } from "../components/searchPosts";
 // will create context to flow the data between search, tags box, and featred posts to outputPosts without passing props
-
+//Idk
 const Home: NextPage = () => {
   return (
     <>
