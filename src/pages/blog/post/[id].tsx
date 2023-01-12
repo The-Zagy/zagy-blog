@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { AsyncReturnType } from '../../../utils/ts-bs';
 import { isValidDateString, dateFormat } from '../../../utils/date';
 // import { ArticleJsonLd } from 'next-seo';
-import Comments from '../../../components/comments/Comments';
+import Comments from '../../../components/comments/comments';
 import { prisma } from "../../../server/db/client";
 
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
