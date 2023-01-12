@@ -5,12 +5,15 @@ import TagsBox from "./tagsBox/TagsBox";
 import { trpc } from "../../utils/trpc";
 import { DefaultSpinner } from "../defaultSpinner/DefaultSpinner";
 import { SearchBox } from "./searchbox/Searchbox";
+import { useDebounce } from "use-debounce";
 
 
 export const SearchPosts = () => {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [searchInput, setSearchInput] = useState<string>("");
-    const posts = trpc.posts.getPostsByTags.useQuery(selectedTags, { enabled: !!selectedTags });
+    const [debouncedSearchInput] = useDebounce(searchInput, 100);
+    const [debouncedSelectedTags] = useDebounce(selectedTags, 200);
+    const posts = trpc.posts.getPosts.useQuery({ ids: debouncedSelectedTags, searchInput: debouncedSearchInput }, { enabled: !!selectedTags || !!debouncedSearchInput });
     function Output() {
         if (posts.isInitialLoading) {
             return <div></div>

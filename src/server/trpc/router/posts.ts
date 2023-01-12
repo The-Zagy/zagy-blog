@@ -2,12 +2,19 @@ import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
 import { prisma } from '../../db/client';
 import { AsyncReturnType } from '../../../utils/ts-bs'
-const getPostsByTags = async (ids: string[]) => {
-    if (ids.length === 0) return [];
+const getPosts = async (ids: string[], searchInput: string) => {
+    if (ids.length === 0 && searchInput.length === 0) return [];
+
     return await prisma.post.findMany(
         {
             where: {
                 AND: [
+                    {
+                        title: {
+                            contains: searchInput,
+                            mode: "insensitive"
+                        }
+                    },
                     ...ids.map(id => ({
                         tags: {
                             some: {
@@ -17,7 +24,7 @@ const getPostsByTags = async (ids: string[]) => {
                             }
                         }
                     }))
-                ]
+                ],
             },
             select: {
                 id: true,
@@ -53,51 +60,15 @@ const getPostsByTags = async (ids: string[]) => {
     );
 }
 
-const getPostByTitle = async (title: string) => {
-    return await prisma.post.findMany({
-        where: {
-            title: {
-                contains: title
-            }
-        },
-        select: {
-            id: true,
-            slug: true,
-            title: true,
-            description: true,
-            contributors: {
-                where: {
-                    isAuthor: true
-                },
-                take: 1,
-                select: {
-                    contributor: {
-                        select: {
-                            handle: true,
-                            image: true,
-                        }
-                    }
-                }
-            },
-            tags: {
-                select: {
-                    tag: {
-                        select: {
-                            name: true,
-                        }
-                    }
-                }
-            },
-        }
-    })
-}
+
 // posts router
-export type PostsFromQuery = AsyncReturnType<typeof getPostsByTags>
+export type PostsFromQuery = AsyncReturnType<typeof getPosts>
 export const postsRouter = router({
-    getPostsByTags: publicProcedure
-        .input(z.array(z.string()))
-        .query(({ input }) => getPostsByTags(input)),
-    getPostByTitle: publicProcedure
-        .input(z.string())
-        .query(({ input }) => getPostByTitle(input))
+    getPosts: publicProcedure
+        .input(z.object({
+            ids: z.array(z.string()),
+            searchInput: z.string()
+        }))
+        .query(({ input }) => getPosts(input.ids, input.searchInput)),
+
 })

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ThemeSwtich from "../themeSwitch/ThemeSwitch";
 import { useTheme } from "next-themes";
 import { Bars2Icon } from "@heroicons/react/24/solid";
@@ -9,27 +9,28 @@ import useOnClickOutside from "../../hooks/useOutsideListner";
 // import { trpc } from "../../utils/trpc";
 export default function Navbar() {
     const { resolvedTheme } = useTheme();
+    const [logoSrc, setLogoSrc] = useState(() => resolvedTheme === "light" ? '/images/Zagy-logos_black.png' : '/images/Zagy-logos_white.png')
     const [mobileMenuOpend, setMobileMenuOpened] = useState<boolean>(false);
-    const navBarRef = useRef<HTMLDivElement>(null)
+    const navBarRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        switch (resolvedTheme) {
+            case 'light':
+                setLogoSrc('/images/Zagy-logos_black.png');
+                break;
+            case 'dark':
+                setLogoSrc('/images/Zagy-logos_white.png');
+                break;
+        }
+        return;
+    }, [resolvedTheme]);
     useOnClickOutside(navBarRef, () => setMobileMenuOpened(false));
-    let src: string;
-    switch (resolvedTheme) {
-        case 'light':
-            src = '/images/Zagy-logos_black.png'
-            break
-        case 'dark':
-            src = '/images/Zagy-logos_white.png'
-            break
-        default:
-            src = '/images/Zagy-logos_black.png'
-            break
-    }
+
     return (
         <>
             <header className="md:w-full md:px-10 px-5 items-center flex flex-row justify-between h-16 gap-10">
                 <section className="md:text-3xl font-bold text-gray-700 select-none ">
                     <Link href="/">
-                        <Image src={src} alt='logo' width="200" height="200" />
+                        <Image src={logoSrc} alt='logo' width="200" height="200" />
                     </Link>
                 </section>
                 <section className="sm:flex hidden flex-row justify-center gap-10 md:w-full text-gray-500">
