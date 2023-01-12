@@ -12,7 +12,7 @@ const UserCard: React.FC<{ userName: string, userImage: string, createdAt: strin
         <div className="flex justify-start items-center gap-6 ">
             <img src={userImage} alt={"userPic"} className={"rounded-full w-12 h-12"} />
             <div>
-                <p>{userName}</p>
+                <p className='md:text-xl text-sm '>{userName}</p>
                 <div className=' text-gray-500 text-sm'>
                     {isValidDateString(createdAt.toString()) && <time>{dateFormat(new Date(createdAt))}</time>}
                     <span>{" -  " + avgReadingTime}</span>
@@ -30,7 +30,7 @@ const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
                 <UserCard avgReadingTime={post.readingTime}
                     userImage={post.contributors[0]?.contributor.image as string}
                     userName={post.contributors[0]?.contributor.handle as string} createdAt={post?.createdAt.toString()} />
-                <h1 className="text-7xl ">{post.title}</h1>
+                <h1 className="lg:text-7xl md:text-5xl text-xl  ">{post.title}</h1>
             </div>
             <img src={"https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
         </div>
