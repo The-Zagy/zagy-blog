@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { AsyncReturnType } from '../../../utils/ts-bs';
 import { isValidDateString, dateFormat } from '../../../utils/date';
 // import { ArticleJsonLd } from 'next-seo';
-import DisqusComments from '../../../components/disqus-comments/DisqusComments';
+import Comments from '../../../components/comments/comments';
 import { prisma } from "../../../server/db/client";
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: Minute }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
@@ -47,7 +47,7 @@ const PostPage: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
                 <div className="flex border-b-2 border-gray-50">
                     <a href={`${"https://github.com/The-Zagy/zagy-blog/edit/main"}/${post.githubPath}`}>Edit this on github</a>
                 </div>
-                <DisqusComments pageUrl={`/blog/post/${post.slug}`} pageId={post.title} />
+                <Comments />
             </div>
         </>
     );
@@ -77,7 +77,7 @@ const getPostBySlug = async (slug: string) => {
             },
             contributors: {
                 select: {
-                    contributor:{
+                    contributor: {
                         select: {
                             handle: true,
                             image: true,
@@ -103,7 +103,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             notFound: true
         }
     }
-    console.dir(post, {depth: 4})
+    console.dir(post, { depth: 4 })
     return {
         props: { post: JSON.parse(JSON.stringify(post)) },
     }
