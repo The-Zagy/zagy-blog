@@ -6,7 +6,7 @@ import { isValidDateString, dateFormat } from '../../../utils/date';
 // import { ArticleJsonLd } from 'next-seo';
 import Comments from '../../../components/comments/Comments';
 import { prisma } from "../../../server/db/client";
-import { CalcAverageReadTime, Minute } from '../../../utils/misc';
+
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
         <div className="flex justify-start items-center gap-6 ">
