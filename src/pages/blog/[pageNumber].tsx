@@ -3,7 +3,6 @@ import { GetStaticPaths } from 'next';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
 import { prisma } from "../../server/db/client";
-import { getContributers } from '../../utils/github'
 import { AsyncReturnType } from '../../utils/ts-bs';
 import { NUMBER_OF_POSTS_IN_A_PAGE } from '../../env/constants';
 // type MdxMeta = {

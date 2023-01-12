@@ -7,8 +7,7 @@ import slug from "rehype-slug";
 import toc from "@jsdevtools/rehype-toc";
 import { AsyncReturnType } from './ts-bs';
 import { RawMDX, downloadFolderMetaData, downloadFileBySha, downloadFileOrDirectory, getContributers } from './github';
-import { env } from '../env/server.mjs';
-import { readFile, readdir } from 'fs/promises';
+import calculateReadingTime from 'reading-time';
 
 export type Githubfile = AsyncReturnType<typeof downloadFolderMetaData>[0]
 
@@ -32,7 +31,8 @@ type ParsedPost = {
 const remarkPlugins: PluggableList = [remarkGfm];
 const rehypePlugins: PluggableList = [slug, toc, rehypePrism]
 export const parsePost = async (source: RawMDX) => {
-    //todo contributers to files in directories
+    //todo add reading time row in database
+    // const readingTime = calculateReadingTime(source.mdxFile);
     const { code, frontmatter } = await bundleMDX({
         source: source.mdxFile,
         files: source.files,

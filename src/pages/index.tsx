@@ -12,7 +12,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="mx-auto py-20 flex gap-12 flex-col items-center justify-center p-4">
-        <h1>If you want to write something open a pull request here <a href="https://github.com/The-Zagy/zagy-blog/tree/main/content/blog" className="dark:text-dark-secondary-500 text-dark-primary-700">Github</a></h1>
+        <h1 className="text-2xl">Wanna write or edit a post? open a pull request <a href="https://github.com/The-Zagy/zagy-blog/tree/main/content/blog" className="dark:text-dark-secondary-500 text-dark-primary-700">here!</a></h1>
         <SearchPosts />
       </div>
 
