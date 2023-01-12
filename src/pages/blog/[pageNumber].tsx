@@ -133,6 +133,9 @@ const getPostsByPage = async (pageNumber: number) => {
     const postsMeta = await prisma.post.findMany({
         skip: pageNumber * NUMBER_OF_POSTS_IN_A_PAGE,
         take: NUMBER_OF_POSTS_IN_A_PAGE,
+        orderBy: {
+            createdAt: 'desc', 
+        },
         select: {
             id: true,
             slug: true,

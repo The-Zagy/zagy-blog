@@ -34,6 +34,7 @@ model Post {
   githubPath String @unique
   keyWords String[]
   code String
+  readingTime String @default("1 min")
   contributors contributorsOnPosts[]
   tags TagsOnPosts[]
   @@id([id, slug])

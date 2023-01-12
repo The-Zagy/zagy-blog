@@ -10,7 +10,7 @@ import { prisma } from "../server/db/client";
 export const  upsertUserToPost = async (contributers: PostContributors, postSlug: string) => {
     if (contributers === undefined)
         throw new Error('file with no contributors daddy');
-    await prisma.user.upsert({
+    const user = await prisma.user.upsert({
         where: {
             id: contributers.author.id?.toString() as string
         },
@@ -26,21 +26,29 @@ export const  upsertUserToPost = async (contributers: PostContributors, postSlug
             }
 
         },
-        update: {
-            posts: {
-                create: {
-                    isAuthor: true,
-                    postId: postSlug
-                }
+        update: {}
+    })
+    await prisma.contributorsOnPosts.upsert({
+        where: {
+            postId_contributorId_isAuthor: {
+                contributorId: user.id,
+                postId: postSlug,
+                isAuthor: true
             }
-        }
+        },
+        create: {
+            isAuthor: true,
+            postId: postSlug,
+            contributorId: user.id
+        },
+        update: {}
     })
 }
 /**
  * create tags if not already exist, and assign them to the post
  */
 export const upsertCategoryToPost = async (tag: string, postSlug: string) => {
-    await prisma.tag.upsert({
+    const tagDB = await prisma.tag.upsert({
         where: {
             name: tag
         },
@@ -52,13 +60,20 @@ export const upsertCategoryToPost = async (tag: string, postSlug: string) => {
                 }
             }
         },
-        update: {
-            posts: {
-                create: {
-                    postId: postSlug
-                }
-            }
-        }
+        update: {}
+    })
+    await prisma.tagsOnPosts.upsert({
+        where: {
+            postId_tagId: {
+                postId: postSlug,
+                tagId: tagDB.name
+            },
+        },
+        create: {
+            postId: postSlug,
+            tagId: tagDB.name
+        },
+        update: {}
     })
 }
 
@@ -66,12 +81,10 @@ export const upsertPost = async (post: ParsedPost) => {
     console.log(post.meta.slug);
     return await prisma.post.upsert({
         where: {
-            //todo post.meta.slug is not the slug we want, idk we wanted the slug to end with .mdx or not
-            slug: post.meta.githubPath.split('/').pop() as string,
+            slug: post.meta.slug,
         },
         create: {
-            // todo but here when creating we're using different slug , so all the code i type will use the slug that ends with .mdx like the create here till we decide what to do
-            slug: post.meta.githubPath.split('/').pop() as string,
+            slug: post.meta.slug,
             title: post.meta.title,
             bannerUrl: post.meta.bannerUrl || 'str',
             description: post.meta.description,
@@ -89,6 +102,7 @@ export const upsertPost = async (post: ParsedPost) => {
     })
 }
 export const deletePost = async (slug: string) => {
+    console.log('deleteddededededd', slug)
     await prisma.post.delete({
         where: {
             slug 
@@ -98,4 +112,7 @@ export const deletePost = async (slug: string) => {
             tags: true,
         }
     })
+}
+export const postsCount = async () => {
+    return await prisma.post.count()
 }

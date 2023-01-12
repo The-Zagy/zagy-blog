@@ -1,13 +1,13 @@
 import { NextApiRequest, NextApiHandler, NextApiResponse } from "next";
-// import { NUMBER_OF_POSTS_IN_A_PAGE } from "../../env/constants";
+import path from 'path';
+import { NUMBER_OF_POSTS_IN_A_PAGE } from "../../env/constants";
 import { Githubfile, downloadAndParsePosts, } from "../../utils/mdx";
-import { upsertPost, upsertCategoryToPost, upsertUserToPost, deletePost } from "../../utils/db";
-
-// TODO DADDY PLEASE USE JWT
-const verifyToken = async (_token: string): Promise<boolean> => {
-    return true;
+import { upsertPost, upsertCategoryToPost, upsertUserToPost, deletePost, postsCount } from "../../utils/db";
+const isContentBaseDir = (file:string) => {
+    const dir = path.parse(file).dir;
+    const isDirectory = path.basename(dir) === 'blog';
+    return isDirectory;
 }
-// assume for now that req body will be that structure 
 interface RevalidateReqStructure  {
     added: string[];
     deleted: string[];
@@ -16,15 +16,48 @@ interface RevalidateReqStructure  {
 }
 // function to create filter function for downloadAndParsePosts
 const createPostsFilter = (body: RevalidateReqStructure) => {
+    const hash: {[k: string]: boolean} = {};
+    for (const file of body.added) {
+        if(!isContentBaseDir(file)){
+            const dir = path.parse(file).dir;
+            hash[dir] = true;
+            continue;
+        }
+        hash[file]= true;
+    }
+    for (const file of body.modified) {
+        if(!isContentBaseDir(file)){
+            const dir = path.parse(file).dir;
+            hash[dir] = true;
+            continue;
+        }
+        hash[file]= true;
+    }
+    for (const file of body.deleted) {
+        if(!isContentBaseDir(file)){
+            if (path.parse(file).ext !== '.mdx') {
+                const dir = path.parse(file).dir;
+                hash[dir] = true;
+            }
+        }
+    }
+    for (const file of body.deleted) {
+        if(!isContentBaseDir(file)){
+            if (path.parse(file).ext === '.mdx') {
+                const dir = path.parse(file).dir;
+                hash[dir] = false;
+            }
+        }
+    }
+
     return (val: Githubfile): boolean => {
-        const hsh: {[k: string]: boolean} = {};
-        for (const file of body.added) {
-            hsh[file] = true;
-        }
-        for (const file of body.modified) {
-            hsh[file] = true;
-        }
-        return val.path in  hsh;
+        return hash[val.path] || false ;
+    }
+}
+const revalidateBlogHome = async (res: NextApiResponse) => {
+    const pagesNumber = (await postsCount()) / NUMBER_OF_POSTS_IN_A_PAGE;
+    for (let i = 1; i <= pagesNumber; ++i) {
+        res.revalidate(`/blog/${i}`);
     }
 }
 /**
@@ -35,22 +68,35 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
 */
 // todo the handler is copy paste from seed main function so you can use the seed function here
 const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-    if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || !await verifyToken(req.headers.authorization)) {
+    if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || req.headers.authorization !== process.env.SEED_PASS) {
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
     // remove deleted files from database and revalidate next.js cache
+    
     for (const deletedPostPath of req.body.deleted as string[]) {
-        const slug = deletedPostPath.split('/').at(-1) as string;
-        await deletePost(slug);
-        res.revalidate(`/blog/post/${slug}`);
+        let slug!: string;
+        if(isContentBaseDir(deletedPostPath) ){
+            slug = path.parse(deletedPostPath).name;
+        }
+        else{
+            const ext = path.parse(deletedPostPath).ext;
+            if (ext === '.mdx') {
+                slug = path.basename(path.parse(deletedPostPath).dir);
+            }
+        }
+        
+        if(slug){
+            await deletePost(slug);
+            res.revalidate(`/blog/post/${slug}`);
+        }
     }
-    if (req.body.added.length + req.body.modified.length > 0) {
+
+    if (req.body.added.length + req.body.modified.length + req.body.deleted.length > 0) {
         // download, parse and update database with the new created/modified files, and revalidate next cache for each post
         const posts = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
         for (const file of posts) {
             const post = await upsertPost(file);
             //update cache
-            res.revalidate(`/blog/post/${post.slug}`)
             // add each file already exist tags
             if (file.meta.categories) {
                 for (const tag of file.meta.categories) {
@@ -62,6 +108,8 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
                 // create author
                 await upsertUserToPost(file.meta.contributers, post.slug);
             }
+            revalidateBlogHome(res);
+            res.revalidate(`/blog/post/${post.slug}`)
         }
     }
     res.end();
