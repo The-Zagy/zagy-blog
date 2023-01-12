@@ -7,7 +7,7 @@ import { isValidDateString, dateFormat } from '../../../utils/date';
 import Comments from '../../../components/comments/Comments';
 import { prisma } from "../../../server/db/client";
 import { CalcAverageReadTime, Minute } from '../../../utils/misc';
-const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: Minute }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
+const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
         <div className="flex justify-start items-center gap-6 ">
             <img src={userImage} alt={"userPic"} className={"rounded-full w-12 h-12"} />
@@ -15,7 +15,7 @@ const UserCard: React.FC<{ userName: string, userImage: string, createdAt: strin
                 <p>{userName}</p>
                 <div className=' text-gray-500 text-sm'>
                     {isValidDateString(createdAt.toString()) && <time>{dateFormat(new Date(createdAt))}</time>}
-                    <span>{` . ${avgReadingTime} min read`}</span>
+                    <span>{" -  " + avgReadingTime}</span>
                 </div>
             </div>
         </div>
@@ -23,11 +23,11 @@ const UserCard: React.FC<{ userName: string, userImage: string, createdAt: strin
 }
 const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
     // const avgReadingTime = CalcAverageReadTime(post.content);
-    const avgReadingTime = 1;
+
     return (
         <div className={"flex flex-col gap-y-10 justify-center "}>
             <div className='flex flex-col gap-2'>
-                <UserCard avgReadingTime={avgReadingTime}
+                <UserCard avgReadingTime={post.readingTime}
                     userImage={post.contributors[0]?.contributor.image as string}
                     userName={post.contributors[0]?.contributor.handle as string} createdAt={post?.createdAt.toString()} />
                 <h1 className="text-7xl ">{post.title}</h1>
@@ -75,20 +75,21 @@ const getPostBySlug = async (slug: string) => {
                 },
 
             },
-            contributors: {where: {
-                isAuthor: true
-            },
+            contributors: {
+                where: {
+                    isAuthor: true
+                },
 
-            take: 1,
-            select: {
-                contributor: {
-                    select: {
-                        handle: true,
-                        image: true,
+                take: 1,
+                select: {
+                    contributor: {
+                        select: {
+                            handle: true,
+                            image: true,
+                        }
                     }
                 }
-            }
-        },
+            },
         }
     })
 }

@@ -7,7 +7,7 @@ import { prisma } from "../server/db/client";
  * @param contributers user
  * @param postSlug post slug(id) to connect user to
  */
-export const  upsertUserToPost = async (contributers: PostContributors, postSlug: string) => {
+export const upsertUserToPost = async (contributers: PostContributors, postSlug: string) => {
     if (contributers === undefined)
         throw new Error('file with no contributors daddy');
     const user = await prisma.user.upsert({
@@ -86,6 +86,7 @@ export const upsertPost = async (post: ParsedPost) => {
         create: {
             slug: post.meta.slug,
             title: post.meta.title,
+            readingTime: post.meta.readingTime,
             bannerUrl: post.meta.bannerUrl || 'str',
             description: post.meta.description,
             githubPath: post.meta.githubPath,
@@ -105,7 +106,7 @@ export const deletePost = async (slug: string) => {
     console.log('deleteddededededd', slug)
     await prisma.post.delete({
         where: {
-            slug 
+            slug
         },
         include: {
             contributors: true,

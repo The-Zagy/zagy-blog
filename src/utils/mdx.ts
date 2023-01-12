@@ -10,12 +10,13 @@ import { RawMDX, downloadFolderMetaData, downloadFileBySha, downloadFileOrDirect
 import calculateReadingTime from 'reading-time';
 
 export type Githubfile = AsyncReturnType<typeof downloadFolderMetaData>[0]
-export type PostContributors = AsyncReturnType<typeof getContributers>; 
+export type PostContributors = AsyncReturnType<typeof getContributers>;
 export type ParsedPost = {
     code: string
     meta: {
         title: string,
         description: string,
+        readingTime: string,
         date: string,
         slug: string,
         bannerUrl: string,
@@ -32,7 +33,7 @@ const remarkPlugins: PluggableList = [remarkGfm];
 const rehypePlugins: PluggableList = [slug, toc, rehypePrism]
 export const parsePost = async (source: RawMDX) => {
     //todo add reading time row in database
-    // const readingTime = calculateReadingTime(source.mdxFile);
+    const readingTime = calculateReadingTime(source.mdxFile);
     const { code, frontmatter } = await bundleMDX({
         source: source.mdxFile,
         files: source.files,
@@ -47,6 +48,7 @@ export const parsePost = async (source: RawMDX) => {
             code,
             meta: {
                 ...frontmatter,
+                readingTime: readingTime.text,
                 slug: source.slug,
                 contributers: source.contributors,
                 githubPath: source.githubPath
