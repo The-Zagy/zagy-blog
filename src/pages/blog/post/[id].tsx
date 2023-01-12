@@ -75,6 +75,7 @@ const getPostBySlug = async (slug: string) => {
                 },
 
             },
+
             contributors: {
                 select: {
                     contributor: {
@@ -82,9 +83,12 @@ const getPostBySlug = async (slug: string) => {
                             handle: true,
                             image: true,
                         }
+
                     }
                 }
             }
+        },
+
         }
     })
 }
