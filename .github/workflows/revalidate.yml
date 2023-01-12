@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "content/**"
+env:
+ SEED_PASS: ${{secrets.SEED_PASS}}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,5 +34,5 @@ jobs:
         with:
           url: "https://www.zagy.tech/api/revalidate"
           method: "POST"
-          customHeaders: '{"Content-Type": "application/json","Authorization":"test"}'
+          customHeaders: '{"Content-Type": "application/json","Authorization":${{SEED_PASS}}}'
           data: '{"added":"${{steps.files.outputs.added_files}}", "deleted": "${{steps.files.outputs.deleted_files}}", "modified": "${{steps.files.outputs.modified_files}}", "renamed": "${{steps.files.outputs.renamed_files}}"}'

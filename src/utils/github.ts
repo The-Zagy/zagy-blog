@@ -58,6 +58,7 @@ export async function getContributers(path: string) {
  * @param path the folder relative path (relative to root of the repository) 
  * @returns an array of the files metadata in the specified path directory
  */
+
 export async function downloadFolderMetaData(path: string) {
     const resp = await octokit.repos.getContent({
         owner: 'The-Zagy',
