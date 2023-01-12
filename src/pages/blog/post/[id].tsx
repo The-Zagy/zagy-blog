@@ -75,20 +75,20 @@ const getPostBySlug = async (slug: string) => {
                 },
 
             },
+            contributors: {where: {
+                isAuthor: true
+            },
 
-            contributors: {
-                select: {
-                    contributor: {
-                        select: {
-                            handle: true,
-                            image: true,
-                        }
-
+            take: 1,
+            select: {
+                contributor: {
+                    select: {
+                        handle: true,
+                        image: true,
                     }
                 }
             }
         },
-
         }
     })
 }
