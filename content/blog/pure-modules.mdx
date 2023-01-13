@@ -152,50 +152,7 @@ initializing the DOM differently.
 
 ### The Alternative
 
-So here's how I would rewrite things to be pure (in the sense that importing
-modules has no side-effects, though the functions they expose are not pure
-themselves):
 
-```js
-// a.js
-import {init} from './b'
-init()
-console.log('ready')
-
-// b.js
-import {serverData, init as initC} from './c'
-
-export function init() {
-  initC()
-  if (!serverData.user) {
-    // redirect to login
-    location.assign('/login')
-  }
-}
-
-// c.js
-export const serverData = {}
-export function init() {
-  const el = document.getElementById('server-data')
-  const json = el.textContent
-  Object.assign(serverData, JSON.parse(json))
-}
-```
-
-How does this resolve the above problems?
-
-- **Unknown consequences:** We're importing the init method and calling that
-  from both `b.js` and `c.js`, so we may not know exactly what those do without
-  looking at the implementation, but we at least know that they're doing
-  something. 💯
-- **Unnecessary operations:** If `b.js` exported additional utility methods, we
-  could import those without running into any surprises. 💡
-- **Inability to choose the order of operations:** If we wanted to initialize
-  the `server-data` in `a.js` then we'd just do that before calling the `init`
-  method from the `b.js` module. ✌️
-- **Impact on testing:** We could easily run the `init`function from `b.js` in a
-  test as many times, re-initializing the DOM before each test with exactly what
-  we need without any trouble or hacks. 🎉
 
 <callout-info>
   Note that the `a.js` module is not pure. At some point one of your modules
