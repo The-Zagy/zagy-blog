@@ -75,7 +75,6 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
     for (const k in req.body) {
         req.body[k] = JSON.parse(req.body[k]);
     }
-    res.status(201).send('done elegantly');
     // remove deleted files from database and revalidate next.js cache
     
     for (const deletedPostPath of req.body.deleted as string[]) {
@@ -95,7 +94,7 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
             await res.revalidate(`/blog/post/${slug}`);
         }
     }
-
+    
     if (req.body.added.length + req.body.modified.length + req.body.deleted.length > 0) {
         // download, parse and update database with the new created/modified files, and revalidate next cache for each post
         const posts = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
@@ -117,5 +116,6 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
         }
     }
     await revalidateBlogHome(res);
+    res.status(201).send('done elegantly');
 }
 export default handler;
