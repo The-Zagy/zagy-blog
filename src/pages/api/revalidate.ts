@@ -49,7 +49,7 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
             }
         }
     }
-
+    console.log('hash filter from the req body', hash)
     return (val: Githubfile): boolean => {
         return hash[val.path] || false ;
     }
@@ -71,6 +71,7 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
     if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || req.headers.authorization !== process.env.SEED_PASS) {
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
+    console.log('req body', req.body);
     // remove deleted files from database and revalidate next.js cache
     
     for (const deletedPostPath of req.body.deleted as string[]) {
@@ -108,10 +109,10 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
                 // create author
                 await upsertUserToPost(file.meta.contributers, post.slug);
             }
-            revalidateBlogHome(res);
             res.revalidate(`/blog/post/${post.slug}`)
         }
     }
+    revalidateBlogHome(res);
     res.end();
 }
 export default handler;
