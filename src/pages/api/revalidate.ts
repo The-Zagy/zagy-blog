@@ -72,7 +72,9 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
     console.log('req body', req.body,'req body type', typeof req.body , 'req body added type', typeof req.body?.added);
-    req.body = JSON.parse(req.body);
+    for (const k in req.body) {
+        req.body[k] = JSON.parse(req.body[k]);
+    }
     // remove deleted files from database and revalidate next.js cache
     
     for (const deletedPostPath of req.body.deleted as string[]) {
