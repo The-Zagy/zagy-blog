@@ -75,6 +75,7 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
     for (const k in req.body) {
         req.body[k] = JSON.parse(req.body[k]);
     }
+    res.status(201).send('done elegantly');
     // remove deleted files from database and revalidate next.js cache
     
     for (const deletedPostPath of req.body.deleted as string[]) {
@@ -116,6 +117,5 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
         }
     }
     await revalidateBlogHome(res);
-    return res.status(201).send('done elegantly');
 }
 export default handler;
