@@ -57,7 +57,7 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
 const revalidateBlogHome = async (res: NextApiResponse) => {
     const pagesNumber = (await postsCount()) / NUMBER_OF_POSTS_IN_A_PAGE;
     for (let i = 1; i <= pagesNumber; ++i) {
-        res.revalidate(`/blog/${i}`);
+        await res.revalidate(`/blog/${i}`);
     }
 }
 /**
@@ -91,7 +91,7 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
         
         if(slug){
             await deletePost(slug);
-            res.revalidate(`/blog/post/${slug}`);
+            await res.revalidate(`/blog/post/${slug}`);
         }
     }
 
@@ -112,10 +112,10 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
                 // create author
                 await upsertUserToPost(file.meta.contributers, post.slug);
             }
-            res.revalidate(`/blog/post/${post.slug}`)
+            await res.revalidate(`/blog/post/${post.slug}`)
         }
     }
-    revalidateBlogHome(res);
-    res.end();
+    await revalidateBlogHome(res);
+    return res.status(201).send('done elegantly');
 }
 export default handler;
