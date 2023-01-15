@@ -3,12 +3,12 @@ import path from 'path';
 import { NUMBER_OF_POSTS_IN_A_PAGE } from "../../env/constants";
 import { Githubfile, downloadAndParsePosts, } from "../../utils/mdx";
 import { upsertPost, upsertCategoryToPost, upsertUserToPost, deletePost, postsCount } from "../../utils/db";
-const isContentBaseDir = (file:string) => {
+const isContentBaseDir = (file: string) => {
     const dir = path.parse(file).dir;
     const isDirectory = path.basename(dir) === 'blog';
     return isDirectory;
 }
-interface RevalidateReqStructure  {
+interface RevalidateReqStructure {
     added: string[];
     deleted: string[];
     modified: string[];
@@ -16,25 +16,25 @@ interface RevalidateReqStructure  {
 }
 // function to create filter function for downloadAndParsePosts
 const createPostsFilter = (body: RevalidateReqStructure) => {
-    const hash: {[k: string]: boolean} = {};
+    const hash: { [k: string]: boolean } = {};
     for (const file of body.added) {
-        if(!isContentBaseDir(file)){
+        if (!isContentBaseDir(file)) {
             const dir = path.parse(file).dir;
             hash[dir] = true;
             continue;
         }
-        hash[file]= true;
+        hash[file] = true;
     }
     for (const file of body.modified) {
-        if(!isContentBaseDir(file)){
+        if (!isContentBaseDir(file)) {
             const dir = path.parse(file).dir;
             hash[dir] = true;
             continue;
         }
-        hash[file]= true;
+        hash[file] = true;
     }
     for (const file of body.deleted) {
-        if(!isContentBaseDir(file)){
+        if (!isContentBaseDir(file)) {
             if (path.parse(file).ext !== '.mdx') {
                 const dir = path.parse(file).dir;
                 hash[dir] = true;
@@ -42,7 +42,7 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
         }
     }
     for (const file of body.deleted) {
-        if(!isContentBaseDir(file)){
+        if (!isContentBaseDir(file)) {
             if (path.parse(file).ext === '.mdx') {
                 const dir = path.parse(file).dir;
                 hash[dir] = false;
@@ -51,7 +51,7 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
     }
     console.log('hash filter from the req body', hash)
     return (val: Githubfile): boolean => {
-        return hash[val.path] || false ;
+        return hash[val.path] || false;
     }
 }
 const revalidateBlogHome = async (res: NextApiResponse) => {
@@ -71,40 +71,47 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
     if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || req.headers.authorization !== process.env.SEED_PASS) {
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
-    console.log('req body', req.body,'req body type', typeof req.body , 'req body added type', typeof req.body?.added);
+    console.log('req body', req.body, 'req body type', typeof req.body, 'req body added type', typeof req.body?.added);
+    let t1 = performance.now();
     for (const k in req.body) {
         req.body[k] = JSON.parse(req.body[k]);
     }
+    let t2 = performance.now();
+    console.log(`Jsoning the body took ${t2 - t1}ms`);
+
     // remove deleted files from database and revalidate next.js cache
-    
+    t1 = performance.now();
     for (const deletedPostPath of req.body.deleted as string[]) {
         let slug!: string;
-        if(isContentBaseDir(deletedPostPath) ){
+        if (isContentBaseDir(deletedPostPath)) {
             slug = path.parse(deletedPostPath).name;
         }
-        else{
+        else {
             const ext = path.parse(deletedPostPath).ext;
             if (ext === '.mdx') {
                 slug = path.basename(path.parse(deletedPostPath).dir);
             }
         }
-        
-        if(slug){
+
+        if (slug) {
             await deletePost(slug);
             await res.revalidate(`/blog/post/${slug}`);
         }
     }
-    
+    t2 = performance.now();
+    console.log(`deleting took ${t2 - t1}ms`);
+
     if (req.body.added.length + req.body.modified.length + req.body.deleted.length > 0) {
         // download, parse and update database with the new created/modified files, and revalidate next cache for each post
-        const posts = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
-        for (const file of posts) {
+        const rawMdx = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
+        t1 = performance.now()
+        const posts = await Promise.all(rawMdx.map(async (file) => {
             const post = await upsertPost(file);
             //update cache
             // add each file already exist tags
             if (file.meta.categories) {
                 for (const tag of file.meta.categories) {
-                    await upsertCategoryToPost(tag, post.slug)
+                    await upsertCategoryToPost(tag, post.slug);
                 }
             }
             // connect posts with autohrs and contributors
@@ -112,10 +119,17 @@ const handler: NextApiHandler = async (req: NextApiRequest, res: NextApiResponse
                 // create author
                 await upsertUserToPost(file.meta.contributers, post.slug);
             }
-            await res.revalidate(`/blog/post/${post.slug}`)
-        }
+            await res.revalidate(`/blog/post/${post.slug}`);
+        }));
+        t2 = performance.now();
+        console.log(`adding took ${t2 - t1}ms`);
     }
+
+
+    t1 = performance.now();
     await revalidateBlogHome(res);
+    t2 = performance.now();
+    console.log(`revalidating ${t2 - t1}ms`);
     res.status(201).send('done elegantly');
 }
 export default handler;
