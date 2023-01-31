@@ -3,16 +3,13 @@ import { NextFunction, Request, Response } from "express";
 import { Githubfile } from '@acme/utils';
 import { upsertPost, upsertCategoryToPost, upsertUserToPost, deletePost, postsCount } from "@acme/db";
 import { downloadAndParsePosts } from '@acme/mdx';
+import axios from 'axios';
 // function to call next app to revalidate pages to new data
 async function callNextApp(filePath: string): Promise<void> {
     const url = process.env.NEXT_URL || 'http://localhost:3000/';
-    await fetch(url + 'api/revalidate/', {
-        body: JSON.stringify(
-            {
-                filePath
-            }
-        ),
-        method: 'POST',
+    await axios.post(url + 'api/revalidate/', {
+        filePath
+    }, {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': process.env.SEED_PASS || 'test',
