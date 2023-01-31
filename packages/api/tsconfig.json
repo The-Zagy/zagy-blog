@@ -1,4 +1,36 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src", "index.ts", "transformer.ts"]
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "ES2022",
+    "lib": [
+      "dom",
+      "es2021"
+    ],
+    "sourceMap": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "types": [
+      "node",
+    ],
+    "esModuleInterop": true,
+    "noEmit": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": true,
+    "removeComments": true,
+    "allowJs": true,
+    "declaration": true
+  },
+  "include": [
+    "src",
+    "index.ts",
+    "transformer.ts"
+  ]
 }

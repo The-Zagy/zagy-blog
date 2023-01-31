@@ -1,5 +1,33 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "ES2022",
+    "lib": [
+      "dom",
+      "es2021"
+    ],
+    "sourceMap": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "types": [
+      "node",
+    ],
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "noEmit": false,
+    "noFallthroughCasesInSwitch": true,
+    "removeComments": true,
+    "allowJs": true,
+    "declaration": true
+  },
   "include": [
     "src",
     "index.ts"

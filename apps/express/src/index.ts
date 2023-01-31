@@ -1,6 +1,6 @@
 import express from 'express'
-import revaldiateHandler from './handlers/revalidate.js';
-import seedHandler from './handlers/seed.js';
+import revaldiateHandler from './handlers/revalidate';
+import seedHandler from './handlers/seed';
 const app = express();
 // middlewares
 app.use(express.json());

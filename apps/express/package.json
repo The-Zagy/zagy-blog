@@ -6,10 +6,10 @@
   "types": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start:prod": "tsup src/index.ts && node ./dist/index.cjs",
-    "start": "node ./dist/index.cjs",
+    "start:prod": "tsc && node ./dist/index.js",
+    "start": "pnpm with-env node ./dist/index.js",
     "serve": "node dist/index.js",
-    "build": "tsup src/index.ts --format cjs",
+    "build":"tsup src/index.ts --format esm --dts",
     "clean": "rm -rf dist .turbo node_modules",
     "dev": "ts-node ./src/index.ts --format cjs --watch --onSuccess \"node dist/index.js\"",
     "type-check": "tsc --noEmit",
