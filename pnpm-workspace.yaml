@@ -1,0 +1,11 @@
+packages:
+  - apps/expo
+  - apps/nextjs
+  - apps/express
+  - packages/utils
+  - packages/api
+  - packages/auth
+  - packages/db
+  - packages/config/*
+  - packages/constants
+  - packages/mdx
