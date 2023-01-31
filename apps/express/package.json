@@ -5,6 +5,9 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start:prod": "tsc && node ./dist/index.js",
     "start": "pnpm with-env node ./dist/index.js",

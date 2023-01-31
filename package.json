@@ -2,6 +2,9 @@
   "name": "create-t3-turbo",
   "private": true,
   "packageManager": "pnpm@7.13.0",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "build": "turbo build",
     "clean": "rm -rf node_modules",
