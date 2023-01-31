@@ -107,6 +107,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (slug) {
                 await deletePost(slug);
+                console.log("done deleting");
                 await callNextApp(`/blog/post/${slug}`);
             }
         } catch (e) {
