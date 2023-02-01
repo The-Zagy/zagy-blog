@@ -9,6 +9,10 @@
       "inputs": ["prisma/schema.prisma"],
       "cache": false
     },
+    "db:studio": {
+      "inputs": ["prisma"],
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false
@@ -30,6 +34,9 @@
     }
   },
   "globalEnv": [
+    "NEXT_URL",
+    "EXPRESS_URL",
+    "SEED_PASS",
     "DATABASE_URL",
     "NEXTAUTH_SECRET",
     "NEXTAUTH_URL",

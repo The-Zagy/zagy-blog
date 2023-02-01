@@ -244,9 +244,11 @@ importers:
 
   packages/constants:
     specifiers:
+      '@types/node': ^18.0.0
       eslint: ^8.32.0
       typescript: ^4.9.4
     devDependencies:
+      '@types/node': 18.11.18
       eslint: 8.32.0
       typescript: 4.9.4
 

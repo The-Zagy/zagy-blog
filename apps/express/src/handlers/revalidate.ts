@@ -87,6 +87,8 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({ message: "Invalid Token | Not authorized" });
     }
     console.log('req body', req.body, 'req body type', typeof req.body, 'req body added type', typeof req.body?.added);
+
+    // TODO make the conversion safer because now there's no checking for the body at all, and when this part throw the server crash
     for (const k in req.body) {
         // eslint-disable-next-line
         req.body[k] = JSON.parse(req.body[k]);
