@@ -29,7 +29,7 @@ jobs:
       - name: pnpm install, build
         run: |
           pnpm install 
-          pnpm build --filter express --if-present
+          pnpm build --filter express
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
