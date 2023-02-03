@@ -1,9 +1,9 @@
 import * as path from 'path';
 import { NextFunction, Request, Response } from "express";
 import { Githubfile } from '@acme/utils';
-import { upsertPost, upsertCategoryToPost, upsertUserToPost, postsCount, PrismaClient} from "@acme/db";
+import { upsertPost, upsertCategoryToPost, upsertUserToPost, postsCount, PrismaClient } from "@acme/db";
 import { downloadAndParsePosts } from '@acme/mdx';
-import axios from 'axios';
+import axios from "axios";
 const prisma = new PrismaClient();
 const deletePost = async (slug: string) => {
     console.log('deleteddededededd', slug)

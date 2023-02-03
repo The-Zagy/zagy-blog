@@ -1,6 +1,6 @@
 import { Octokit as createOctokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
-import { inferAsyncReturnType } from '@trpc/server';
+
 import path from 'path';
 import { AsyncReturnType } from './ts-bs.js';
 
@@ -103,13 +103,13 @@ export async function downloadFolderMetaData(path: string) {
 export async function downloadGithubUser(login: string) {
     return (await octokit.rest.users.getByUsername({ username: login })).data;
 }
-export type GithubUser = inferAsyncReturnType<typeof downloadGithubUser>
+export type GithubUser = AsyncReturnType<typeof downloadGithubUser>
 /**
  * 
  * @param sha 
  * @returns the actual content of the file returned as a string
  */
-export type FileContributors = inferAsyncReturnType<typeof getContributers>;
+export type FileContributors = AsyncReturnType<typeof getContributers>;
 export async function downloadFileBySha(sha: string) {
     const { data } = await octokit.git.getBlob({
         owner: 'The-Zagy',

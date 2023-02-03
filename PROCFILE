@@ -1,0 +1,1 @@
+web: node ./apps/express/dist/index.js

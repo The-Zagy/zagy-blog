@@ -1,5 +1,5 @@
 {
-  "name": "create-t3-turbo",
+  "name": "zagy-blog",
   "private": true,
   "packageManager": "pnpm@7.13.0",
   "engines": {
@@ -7,6 +7,18 @@
   },
   "scripts": {
     "build": "turbo build",
+    "pre-install":"pnpm --filter=zagy-blog install",
+    "start:nextjs": "cd ./apps/nextjs && pnpm with-env next start",
+    "start:nextjs:prod": "cd ./apps/nextjs && pnpm next start",
+    "start:express": "pnpm with-env node ./apps/express/dist/index.js",
+    "start:express:prod": "node ./apps/express/dist/index.js",
+    "dev:nextjs": "",
+    "dev:express": "",
+    "install:nextjs": "pnpm  --filter !express install --store=node_modules/.pnpm-store",
+    "install:express": "pnpm run pre-install && pnpm --filter=express... install --store=node_modules/.pnpm-store",
+    "build:express": "turbo run build --filter=express",
+    "build:nextjs": "turbo run build --filter=nextjs",
+    "deploy:express": "pnpm run install:express && pnpm run build:express && pnpm run start:express:prod",
     "clean": "rm -rf node_modules",
     "clean:workspaces": "turbo clean",
     "db:generate": "turbo db:generate",
@@ -31,9 +43,8 @@
     "turbo": "^1.7.0",
     "typescript": "^4.9.4"
   },
-  "pnpm": {
-    "patchedDependencies": {
-      "react-native@0.70.5": "patches/react-native@0.70.5.patch"
-    }
+
+  "devDependencies": {
+    "@types/node": "^18.0.0"
   }
 }
