@@ -1,5 +1,5 @@
 {
-    "buildCommand": "cd ../.. && npx turbo run build --filter=nextjs",
+    "buildCommand": "cd ../.. && pnpm build:nextjs",
     "devCommand": "next",
     "installCommand": "cd ../.. && ls && pnpm --filter=!express install --store=node_modules/.pnpm-store",
     "framework": "nextjs"

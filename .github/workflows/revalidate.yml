@@ -32,7 +32,7 @@ jobs:
         if: steps.files.outputs.any_modified == 'true'
         uses: fjogeleit/http-request-action@v1
         with:
-          url: "https://www.zagy.tech/api/revalidate"
+          url: "https://zagy-revalidation.herokuapp.com/revalidate"
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"${{secrets.SEED_PASS}}"}'
           data: '{"added":"${{steps.files.outputs.added_files}}", "deleted": "${{steps.files.outputs.deleted_files}}", "modified": "${{steps.files.outputs.modified_files}}", "renamed": "${{steps.files.outputs.renamed_files}}"}'

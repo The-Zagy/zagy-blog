@@ -6,6 +6,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // handlers
+app.get('/', (_req, res) => {
+    res.send('revalidate home page');
+})
 app.post('/seed', seedHandler);
 app.post('/revalidate', revaldiateHandler);
 // since the req reached here means no route matching == 404

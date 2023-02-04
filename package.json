@@ -10,7 +10,7 @@
     "pre-install":"pnpm --filter=zagy-blog install",
     "start:nextjs": "cd ./apps/nextjs && pnpm with-env next start",
     "start:nextjs:prod": "cd ./apps/nextjs && pnpm next start",
-    "start:express": "pnpm with-env node ./apps/express/dist/index.js",
+    "start:express": "pnpm --filter=express start",
     "start:express:prod": "node ./apps/express/dist/index.js",
     "dev:nextjs": "",
     "dev:express": "",

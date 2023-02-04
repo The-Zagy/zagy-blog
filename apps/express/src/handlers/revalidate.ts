@@ -84,9 +84,11 @@ const createPostsFilter = (body: RevalidateReqStructure) => {
 const revalidateBlogHome = async () => {
     // todo change 12 to constant
     const pagesNumber = (await postsCount()) / 12;
+    const pagePromise: Promise<void>[] = [];
     for (let i = 1; i <= pagesNumber; ++i) {
-        await callNextApp(`/blog/${i}`);
+        pagePromise.push(callNextApp(`/blog/${i}`));
     }
+    await Promise.all(pagePromise);
 };
 
 /**
@@ -152,7 +154,12 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
                 await callNextApp(`/blog/post/${post.slug}`);
             }));
         }
-        await revalidateBlogHome();
+        try {
+            await revalidateBlogHome();
+        } catch (e) {
+            next(e);
+            return;
+        }
         res.status(201).send('done elegantly');
     } catch (e) {
         next(e);
