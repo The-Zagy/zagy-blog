@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // handlers
 app.get('/', (_req, res) => {
-    res.send('revalidate home page');
+    res.send('revalidate home page from heroku ci');
 })
 app.post('/seed', seedHandler);
 app.post('/revalidate', revaldiateHandler);
