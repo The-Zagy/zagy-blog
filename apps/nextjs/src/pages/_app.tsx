@@ -10,6 +10,7 @@ import "../styles/syntax-higlighting.css";
 import DefaultLayout from "../layouts/default-layout/DefaultLayout";
 import React from "react";
 import { ThemeProvider } from "next-themes";
+import { GoogleAnalytics } from "~/scripts/GoogleAnalytics";
 export type CustomAppProps = AppProps<{ session: Session | null }> & {
   Component: AppProps["Component"] & {
     PageLayout?: React.ComponentType<{ children: React.ReactNode }>;
@@ -24,6 +25,7 @@ function MyApp({
     <SessionProvider session={session}>
       <ThemeProvider attribute="class" >
         <DefaultSeo {...NEXT_SEO_DEFAULT} />
+        <GoogleAnalytics />
         {
           Component.PageLayout ?
             <Component.PageLayout>
