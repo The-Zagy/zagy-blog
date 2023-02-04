@@ -1,12 +1,13 @@
 import React from "react";
 import Footer from "../../components/footer/Footer";
-import Navbar from "../../components/navbar/NavBar";
+import dynamic from "next/dynamic";
 
-
+const DynamicNav = dynamic(() => import('../../components/navbar/NavBar'), {ssr: false});
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
     return (
         <div>
-            <Navbar />
+            
+            <DynamicNav />
             <main className="dark:bg-dark-background-500 min-h-screen dark:text-dark-text-500">
                 {children}
             </main>

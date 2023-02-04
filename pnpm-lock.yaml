@@ -76,6 +76,7 @@ importers:
       '@trpc/react-query': ^10.9.0
       '@trpc/server': ^10.9.0
       '@types/node': ^18.0.0
+      '@types/nprogress': ^0.2.0
       '@types/react': ^18.0.25
       '@types/react-dom': ^18.0.9
       autoprefixer: ^10.4.13
@@ -87,6 +88,7 @@ importers:
       next-auth: ^4.19.0
       next-seo: ^5.15.0
       next-themes: ^0.2.1
+      nprogress: ^0.2.0
       postcss: ^8.4.21
       react: 18.2.0
       react-dom: 18.2.0
@@ -112,6 +114,7 @@ importers:
       next-auth: 4.19.2_3vryta7zmbcsw4rrqf4axjqggm
       next-seo: 5.15.0_3vryta7zmbcsw4rrqf4axjqggm
       next-themes: 0.2.1_3vryta7zmbcsw4rrqf4axjqggm
+      nprogress: 0.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       use-debounce: 9.0.3_react@18.2.0
@@ -119,6 +122,7 @@ importers:
     devDependencies:
       '@tailwindcss/typography': 0.5.9_tailwindcss@3.2.4
       '@types/node': 18.11.18
+      '@types/nprogress': 0.2.0
       '@types/react': 18.0.27
       '@types/react-dom': 18.0.10
       autoprefixer: 10.4.13_postcss@8.4.21
@@ -1402,6 +1406,10 @@ packages:
 
   /@types/node/18.11.18:
     resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
+
+  /@types/nprogress/0.2.0:
+    resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
+    dev: true
 
   /@types/prismjs/1.26.0:
     resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
@@ -4843,6 +4851,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       path-key: 3.1.1
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
+    dev: false
 
   /oauth/0.9.15:
     resolution: {integrity: sha512-a5ERWK1kh38ExDEfoO6qUHJb32rd7aYmPHuyCu3Fta/cnICvYmgd2uhuKXvPD+PXB+gCEYYEaQdIRAjCOwAKNA==}
