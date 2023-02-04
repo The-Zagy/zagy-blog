@@ -36,3 +36,4 @@ jobs:
           method: "POST"
           customHeaders: '{"Content-Type": "application/json","Authorization":"${{secrets.SEED_PASS}}"}'
           data: '{"added":"${{steps.files.outputs.added_files}}", "deleted": "${{steps.files.outputs.deleted_files}}", "modified": "${{steps.files.outputs.modified_files}}", "renamed": "${{steps.files.outputs.renamed_files}}"}'
+          timeout: 1200000
