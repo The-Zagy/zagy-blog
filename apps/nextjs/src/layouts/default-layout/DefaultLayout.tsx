@@ -1,7 +1,7 @@
 import React from "react";
 import Footer from "../../components/footer/Footer";
-import Navbar from "~/components/navbar/NavBar";
-
+import dynamic from "next/dynamic";
+const Navbar = dynamic(() => import('../../components/navbar/NavBar'), { ssr: false })
 export default function DefaultLayout({ children }: { children: React.ReactNode }) {
     return (
         <div>

@@ -6,9 +6,7 @@ import { Bars2Icon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import useOnClickOutside from "../../hooks/useOutsideListner";
 import dynamic from "next/dynamic";
-const ThemeSwitch = dynamic(() => import("../themeSwitch/ThemeSwitch"), {
-    ssr: false
-})
+import ThemeSwitch from "../themeSwitch/ThemeSwitch";
 // import { trpc } from "../../utils/trpc";
 export default function Navbar() {
     const { resolvedTheme } = useTheme();
