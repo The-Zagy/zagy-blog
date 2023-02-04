@@ -1,11 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
-import ThemeSwtich from "../themeSwitch/ThemeSwitch";
 import { useTheme } from "next-themes";
 import { Bars2Icon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
 import useOnClickOutside from "../../hooks/useOutsideListner";
+import dynamic from "next/dynamic";
+const ThemeSwitch = dynamic(() => import("../themeSwitch/ThemeSwitch"), {
+    ssr: false
+})
 // import { trpc } from "../../utils/trpc";
 export default function Navbar() {
     const { resolvedTheme } = useTheme();
@@ -45,7 +48,7 @@ export default function Navbar() {
                         className="text-black dark:text-dark-text-500 cursor-pointer w-7 h-7" />
                 </div>
                 <div className="hidden sm:block">
-                    <ThemeSwtich />
+                    <ThemeSwitch />
                 </div>
             </header>
             <div ref={navBarRef} className={clsx("fixed z-10 h-full border-r top-0 sm:hidden shadow-sm border-r-gray-100 w-1/2 transition-transform bg-white px-5 py-10 dark:bg-dark-background-500"
@@ -54,7 +57,7 @@ export default function Navbar() {
                     <Link href="/blog/1" className="hover:text-dark-secondary-500">All Posts</Link>
                     <Link href="" className="hover:text-dark-secondary-500">Arcade</Link>
                     <Link href="/about" className="hover:text-dark-secondary-500">About Us</Link>
-                    <ThemeSwtich />
+                    <ThemeSwitch />
                 </section>
 
             </div>
