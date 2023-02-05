@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 import { DefaultSpinner } from "../defaultSpinner/DefaultSpinner";
 import { SearchBox } from "./searchbox/Searchbox";
 import { useDebounce } from "use-debounce";
+import LatestPosts from "../latestPosts";
 
 
 export const SearchPosts = () => {
@@ -15,7 +16,9 @@ export const SearchPosts = () => {
     const [debouncedSelectedTags] = useDebounce(selectedTags, 200);
     const posts = api.posts.getPosts.useQuery({ ids: debouncedSelectedTags, searchInput: debouncedSearchInput }, { enabled: !!selectedTags || !!debouncedSearchInput });
     function Output() {
-        if (debouncedSearchInput === "" && debouncedSelectedTags.length === 0) return <div></div>
+        if (debouncedSearchInput === "" && debouncedSelectedTags.length === 0) return (
+            <LatestPosts />
+        )
         if (posts.isLoading) {
             return <div><DefaultSpinner /></div>;
         }
