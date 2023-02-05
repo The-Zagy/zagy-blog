@@ -19,7 +19,7 @@ export default function LatestPosts() {
     }
     return (
         <div className="border-t font-mono border-b w-full flex flex-col justify-center">
-            <h2 className="text-xl text-center">Latest Posts</h2>
+            <h2 className="text-xl text-center">Latest</h2>
             <Posts />
         </div>
     )
