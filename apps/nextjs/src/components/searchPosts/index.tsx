@@ -3,7 +3,7 @@ import SearchBar from "./searchBar/SearchBar";
 import { useState } from "react";
 import TagsBox from "./tagsBox/TagsBox";
 import { api } from "~/utils/api";
-import { DefaultSpinner } from "../defaultSpinner/DefaultSpinner";
+import { DefaultSpinner } from "../loaders/defaultSpinner/DefaultSpinner";
 import { SearchBox } from "./searchbox/Searchbox";
 import { useDebounce } from "use-debounce";
 import LatestPosts from "../latestPosts";

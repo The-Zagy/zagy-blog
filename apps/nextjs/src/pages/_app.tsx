@@ -19,7 +19,7 @@ export type CustomAppProps = AppProps<{ session: Session | null }> & {
     PageLayout?: React.ComponentType<{ children: React.ReactNode }>;
   }
 }
-const TopProgressBar = dynamic(() => import('../components/topProgressBar'), { ssr: false });
+const TopProgressBar = dynamic(() => import('../components/loaders/topProgressBar'), { ssr: false });
 function MyApp({
   Component,
   pageProps: { session, ...pageProps },
