@@ -59,7 +59,47 @@ const getPosts = async (ids: string[], searchInput: string) => {
         }
     );
 }
+const getLatestPosts = async () => {
+    return await prisma.post.findMany({
+        take: 4,
+        orderBy: {
+            createdAt: "desc"
+        },
+        select: {
+            id: true,
+            slug: true,
+            title: true,
+            bannerUrl: true,
+            createdAt: true,
+            readingTime: true,
+            contributors: {
+                where: {
+                    isAuthor: true
+                },
 
+                take: 1,
+                select: {
+                    contributor: {
+                        select: {
+                            handle: true,
+                            image: true,
+                        }
+                    }
+                }
+            },
+            tags: {
+                select: {
+                    tag: {
+                        select: {
+                            name: true,
+                        }
+                    }
+                }
+            },
+            description: true,
+        }
+    })
+}
 
 // posts router
 export type PostsFromQuery = inferAsyncReturnType<typeof getPosts>
@@ -70,5 +110,6 @@ export const postsRouter = createTRPCRouter({
             searchInput: z.string()
         }))
         .query(({ input }) => getPosts(input.ids, input.searchInput)),
+    getLatestPosts: publicProcedure.query(() => getLatestPosts())
 
 })

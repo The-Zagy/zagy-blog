@@ -12,7 +12,7 @@
     "start:nextjs:prod": "cd ./apps/nextjs && pnpm next start",
     "start:express": "pnpm --filter=express start",
     "start:express:prod": "node ./apps/express/dist/index.js",
-    "dev:nextjs": "",
+    "dev:nextjs": "cd ./apps/nextjs && pnpm run dev",
     "dev:express": "",
     "install:nextjs": "pnpm  --filter !express install --store=node_modules/.pnpm-store",
     "install:express": "pnpm run pre-install && pnpm --filter=express... install --store=node_modules/.pnpm-store",

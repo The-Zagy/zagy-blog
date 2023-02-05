@@ -13,19 +13,20 @@ import { ThemeProvider } from "next-themes";
 import dynamic from "next/dynamic";
 import "nprogress/nprogress.css";
 import { GoogleAnalytics } from "~/scripts/GoogleAnalytics";
+
 export type CustomAppProps = AppProps<{ session: Session | null }> & {
   Component: AppProps["Component"] & {
     PageLayout?: React.ComponentType<{ children: React.ReactNode }>;
   }
 }
-const TopProgressBar = dynamic(() => import('../components/topProgressBar'), {ssr: false});
+const TopProgressBar = dynamic(() => import('../components/topProgressBar'), { ssr: false });
 function MyApp({
   Component,
   pageProps: { session, ...pageProps },
 }: CustomAppProps) {
   return (
     <SessionProvider session={session}>
-      <ThemeProvider attribute="class" >
+      <ThemeProvider enableSystem storageKey="theme" attribute="class" >
         <TopProgressBar />
         <DefaultSeo {...NEXT_SEO_DEFAULT} />
         <GoogleAnalytics />

@@ -15,16 +15,17 @@ export const SearchPosts = () => {
     const [debouncedSelectedTags] = useDebounce(selectedTags, 200);
     const posts = api.posts.getPosts.useQuery({ ids: debouncedSelectedTags, searchInput: debouncedSearchInput }, { enabled: !!selectedTags || !!debouncedSearchInput });
     function Output() {
-        if (posts.isInitialLoading) {
-            return <div></div>
-        }
+        if (debouncedSearchInput === "" && debouncedSelectedTags.length === 0) return <div></div>
         if (posts.isLoading) {
-            return <DefaultSpinner />;
+            return <div><DefaultSpinner /></div>;
         }
         if (posts.isError) {
             return <div>Something went wrong please try again</div>
         }
         if (posts.isSuccess) {
+            if (posts.data.length === 0) {
+                return <div>No posts matched this query</div>
+            }
             return <OutputPosts posts={posts.data} />
         }
 
@@ -33,7 +34,7 @@ export const SearchPosts = () => {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center gap-5">
+        <div className="flex flex-col justify-center items-center max-w-7xl gap-5">
             <div></div>
             <SearchBar >
                 <SearchBox searchInput={searchInput} setSearchInput={setSearchInput} />

@@ -14,7 +14,7 @@ export default function Author({ posts, author }: { posts: Posts, author: Github
         </div>
         <div className="col-span-2 flex flex-col pt-20 px-12">Posts by this person:
             <div className="flex flex-col mt-3">
-                {posts && posts.map(i => <Link className="text-blue-700" href={`/blog/post/${i.post.slug}`}>{i.post.title}</Link>)}
+                {posts && posts.map(i => <Link key={i.post.slug} className="text-blue-700" href={`/blog/post/${i.post.slug}`}>{i.post.title}</Link>)}
             </div></div>
 
     </div>

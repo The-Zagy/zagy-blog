@@ -1,6 +1,7 @@
 import React from 'react';
-import { PostCard } from '../../../pages/blog/[pageNumber]';
 import { PostsFromQuery } from '@acme/api';
+import { PostCard } from '~/components/post/DefaultPostCard';
+
 const OutputPosts: React.FC<{ posts: PostsFromQuery }> = ({ posts }) => {
     return (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2'>

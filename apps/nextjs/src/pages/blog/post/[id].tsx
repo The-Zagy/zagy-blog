@@ -41,9 +41,9 @@ const PostPage: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
     return (
         <>
 
-            <div className="m-auto w-11/12 md:w-5/6 lg:w-4/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
+            <div className="m-auto w-11/12 md:w-4/6 lg:w-3/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
                 <PostHeader post={post} />
-                <main className="prose lg:prose-2xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base max-w-none" ><Component /></main>
+                <main className="prose lg:prose-xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base break-words max-w-none" ><Component /></main>
                 <div className="flex border-b-2 border-gray-50">
                     <a href={`${"https://github.com/The-Zagy/zagy-blog/edit/main"}/${post.githubPath}`}>Edit this on github</a>
                 </div>
@@ -111,5 +111,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     console.dir(post, { depth: 4 })
     return {
         props: { post: JSON.parse(JSON.stringify(post)) as Post },
+
     }
 }
