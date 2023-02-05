@@ -10,8 +10,8 @@ const Home: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main className="container font-mono mx-auto flex min-h-screen flex-col p-4">
-                <h1 className="text-xl">Hi, we're Zagy (Zam + Nagy)!</h1>
-                <h2 className="text-lg">We're two Javascript developers currently studying computer engineering at Shoubra's faculty of engineering.</h2>
+                <h1 className="text-xl">Hi, were Zagy (Zam + Nagy)!</h1>
+                <h2 className="text-lg">We are two Javascript developers currently studying computer engineering at Shoubra&apos;s faculty of engineering.</h2>
                 <section className="mt-4 border-t py-2">
                     <h1 className="text-xl">Zam</h1>
 

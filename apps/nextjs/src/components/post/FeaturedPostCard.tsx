@@ -1,6 +1,6 @@
-import { AsyncReturnType, dateFormat, isValidDateString } from "@acme/utils";
+import { dateFormat } from "@acme/utils";
 import Link from "next/link";
-import { api, RouterOutputs } from "~/utils/api";
+import { RouterOutputs } from "~/utils/api";
 type PostMeta = RouterOutputs['posts']['getLatestPosts'][0]
 export const PostCard: React.FC<{ post: PostMeta }> = ({ post }) => {
     console.log(post.createdAt)
