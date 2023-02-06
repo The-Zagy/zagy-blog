@@ -6,6 +6,7 @@ import { isValidDateString, dateFormat } from '@acme/utils';
 // import { ArticleJsonLd } from 'next-seo';
 import Comments from '../../../components/comments/comments';
 import { Post, prisma } from "@acme/db";
+import { NextSeo } from 'next-seo';
 
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
@@ -22,10 +23,14 @@ const UserCard: React.FC<{ userName: string, userImage: string, createdAt: strin
     );
 }
 const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
-    // const avgReadingTime = CalcAverageReadTime(post.content);
+    return (<>
+        <NextSeo
+            title={`Zagy Blog - ${post.title}`}
+            description={post.description}
 
-    return (
+        />
         <div className={"flex flex-col gap-y-10 justify-center "}>
+
             <div className='flex flex-col gap-2'>
                 <UserCard avgReadingTime={post.readingTime}
                     userImage={post.contributors[0]?.contributor.image as string}
@@ -34,6 +39,7 @@ const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
             </div>
             <img src={"https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
         </div>
+    </>
     );
 }
 const PostPage: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {

@@ -3,7 +3,6 @@ import Link from "next/link";
 import { RouterOutputs } from "~/utils/api";
 type PostMeta = RouterOutputs['posts']['getLatestPosts'][0]
 export const PostCard: React.FC<{ post: PostMeta }> = ({ post }) => {
-    console.log(post.createdAt)
     return (<article className="col-span-3 ">
         <img src={"https://picsum.photos/200/300"} className="rounded-lg w-full h-96
         object-cover object-center" />
