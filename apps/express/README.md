@@ -2,6 +2,11 @@
 
 gotta said i'm still thinking of the serverless migrations, at least i want to learn it in another project
 
+^
+|
+|
+Thinks serverless gonna solve his problems lol
+
 ## why another app??????????????
 
 because we're poor bro stop asking
