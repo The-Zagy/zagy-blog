@@ -26,7 +26,7 @@ function MyApp({
 }: CustomAppProps) {
   return (
     <SessionProvider session={session}>
-      <ThemeProvider enableSystem storageKey="theme" attribute="class" >
+      <ThemeProvider enableSystem defaultTheme="dark" storageKey="theme" attribute="class" >
         <TopProgressBar />
         <DefaultSeo {...NEXT_SEO_DEFAULT} />
         <GoogleAnalytics />

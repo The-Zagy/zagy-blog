@@ -87,7 +87,7 @@ export const upsertPost = async (post: ParsedPost) => {
             slug: post.meta.slug,
             title: post.meta.title,
             readingTime: post.meta.readingTime,
-            bannerUrl: post.meta.bannerUrl || 'str',
+            bannerUrl: post.meta.bannerUrl || '',
             description: post.meta.description,
             githubPath: post.meta.githubPath,
             code: post.code,
@@ -95,7 +95,7 @@ export const upsertPost = async (post: ParsedPost) => {
         },
         update: {
             title: post.meta.title,
-            bannerUrl: post.meta.bannerUrl || 'str',
+            bannerUrl: post.meta.bannerUrl || '',
             description: post.meta.description,
             code: post.code,
             keyWords: post.meta?.meta?.keywords || []

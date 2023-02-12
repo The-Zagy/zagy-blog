@@ -1,5 +1,3 @@
-
-
 import { useTheme } from "next-themes";
 import React, { useEffect, useRef } from "react"
 const Comments: React.FC = () => {

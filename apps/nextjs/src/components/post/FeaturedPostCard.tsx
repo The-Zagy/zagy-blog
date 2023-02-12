@@ -4,7 +4,7 @@ import { RouterOutputs } from "~/utils/api";
 type PostMeta = RouterOutputs['posts']['getLatestPosts'][0]
 export const PostCard: React.FC<{ post: PostMeta }> = ({ post }) => {
     return (<article className="col-span-3 ">
-        <img src={"https://picsum.photos/200/300"} className="rounded-lg w-full h-96
+        <img alt="Article cover" src={post.bannerUrl || "https://picsum.photos/800/1200"} className="rounded-lg w-full h-96
         object-cover object-center" />
         <header className="flex flex-col">
             <p className="text-gray-700 dark:text-dark-text-900 text-lg

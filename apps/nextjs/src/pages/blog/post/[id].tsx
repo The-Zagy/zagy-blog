@@ -7,6 +7,7 @@ import { isValidDateString, dateFormat } from '@acme/utils';
 import Comments from '../../../components/comments/comments';
 import { Post, prisma } from "@acme/db";
 import { NextSeo } from 'next-seo';
+import { MdxLink } from '~/components/mdx-components';
 
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
@@ -37,7 +38,7 @@ const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
                     userName={post.contributors[0]?.contributor.handle as string} createdAt={post?.createdAt.toString()} />
                 <h1 className="lg:text-7xl md:text-5xl text-xl  ">{post.title}</h1>
             </div>
-            <img src={"https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
+            <img src={post.bannerUrl || "https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
         </div>
     </>
     );
@@ -49,7 +50,9 @@ const PostPage: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
 
             <div className="m-auto w-11/12 md:w-4/6 lg:w-3/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
                 <PostHeader post={post} />
-                <main className="prose lg:prose-xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base break-words max-w-none" ><Component /></main>
+                <main className="prose lg:prose-xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base break-words max-w-none" >
+                    <Component components={{ a: MdxLink }} />
+                </main>
                 <div className="flex border-b-2 border-gray-50">
                     <a href={`${"https://github.com/The-Zagy/zagy-blog/edit/main"}/${post.githubPath}`}>Edit this on github</a>
                 </div>
