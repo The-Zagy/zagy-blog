@@ -19,6 +19,9 @@ export async function seed() {
         if (file.meta.contributers) {
             // create author
             await upsertUserToPost(file.meta.contributers, post.slug);
+
+            //todo add restOfContributers
+
             // console.log(file.meta.contributers.restOfContributers);
             // for (const cont of file.meta.contributers.restOfContributers) {
             //     await prisma.user.upsert({
@@ -49,13 +52,3 @@ export async function seed() {
         }
     }
 }
-
-// main()
-//     .then(async () => {
-//         await prisma.$disconnect()
-//     })
-//     .catch(async (e) => {
-//         console.error(e)
-//         await prisma.$disconnect()
-//         process.exit(1)
-//     })

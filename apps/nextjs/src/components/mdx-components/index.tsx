@@ -1,3 +1,10 @@
-export { MdxLink } from "./Link";
-export { Callout } from "./Callout";
-export { Quote } from "./Quote";
+import { MdxLink } from "./Link";
+import { Callout } from "./Callout";
+import { Quote } from "./Quote";
+
+const MdxComponents = {
+    a: MdxLink,
+    Callout,
+    Quote
+}
+export default MdxComponents

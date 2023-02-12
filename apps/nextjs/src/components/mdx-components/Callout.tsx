@@ -9,14 +9,7 @@ const colorHeader = {
     "con": "bg-red-500 dark:bg-red-700",
     "info": "bg-gray-500",
 }
-const colorBG = {
-    "note": "bg-gray-200",
-    "tldr": "bg-gray-200",
-    "idea": "bg-yellow-500",
-    "pro": "bg-green-200",
-    "con": "bg-red-500",
-    "info": "bg-gray-500",
-}
+
 export const Callout: React.FC<{ children: string, type: CalloutType }> = ({ children, type }) => {
     function CalloutIcon() {
         switch (type) {
@@ -33,11 +26,11 @@ export const Callout: React.FC<{ children: string, type: CalloutType }> = ({ chi
          text-gray-500 bg-gray-100
         dark:bg-dark-muted-400
         dark:text-dark-text-600
-        flex flex-row items-center gap-x-4
+        flex flex-row items-stretch gap-x-4
          rounded-md
         not-italic
         ">
-            <header className={`px-2 rounded-l-md flex flex-col justify-center py-4 ${colorHeader[type]}`}>
+            <header className={`px-2 rounded-l-md flex flex-col justify-center max-h-full py-6 ${colorHeader[type]}`}>
                 <CalloutIcon />
             </header>
             <div>
