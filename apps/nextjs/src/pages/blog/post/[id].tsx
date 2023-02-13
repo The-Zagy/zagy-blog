@@ -116,7 +116,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             notFound: true
         }
     }
-    console.dir(post, { depth: 4 })
     return {
         props: { post: JSON.parse(JSON.stringify(post)) as Post },
 

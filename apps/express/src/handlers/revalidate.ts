@@ -6,7 +6,6 @@ import { downloadAndParsePosts } from '@acme/mdx';
 import axios from "axios";
 const prisma = new PrismaClient();
 const deletePost = async (slug: string) => {
-    console.log('deleteddededededd', slug)
     await prisma.post.delete({
         where: {
             slug
@@ -25,7 +24,7 @@ async function callNextApp(filePath: string): Promise<void> {
     }, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': process.env.SEED_PASS || 'test',
+            'Authorization': process.env.SEED_PASS,
         }
     });
 }

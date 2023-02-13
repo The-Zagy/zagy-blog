@@ -42,11 +42,11 @@ const getPostsByUser = async (handle: string) => {
     }))?.posts
 }
 type Posts = AsyncReturnType<typeof getPostsByUser>
-export async function getServerSideProps({ params }: { params: { slug: string } }) {
-    const { slug } = params;
-    const posts = await getPostsByUser(slug);
+export async function getServerSideProps({ params }: { params: { id: string } }) {
+    const { id } = params;
+    const posts = await getPostsByUser(id);
 
-    const author = await downloadGithubUser(slug);
+    const author = await downloadGithubUser(id);
     console.log(author);
     return {
         props: {

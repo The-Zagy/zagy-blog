@@ -132,7 +132,6 @@ const getPostsByPage = async (pageNumber: number) => {
             description: true,
         }
     })
-    console.dir(postsMeta, { depth: 4 });
     return postsMeta;
 }
 type PostsMeta = AsyncReturnType<typeof getPostsByPage>;

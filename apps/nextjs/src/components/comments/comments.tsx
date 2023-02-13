@@ -10,7 +10,7 @@ const Comments: React.FC = () => {
             iframe.contentWindow?.postMessage({
                 giscus: {
                     setConfig: {
-                        theme
+                        theme: theme === "light" ? theme : "dark_high_contrast"
                     }
                 }
             })
@@ -27,7 +27,7 @@ const Comments: React.FC = () => {
         scriptElement.setAttribute("data-reactions-enabled", "1");
         scriptElement.setAttribute("data-emit-metadata", "0");
         scriptElement.setAttribute("data-lang", "en");
-        scriptElement.setAttribute("data-theme", theme);
+        scriptElement.setAttribute("data-theme", theme === "light" ? theme : "dark_high_contrast");
         ref.current?.appendChild(scriptElement);
     }, [theme]);
     return (
