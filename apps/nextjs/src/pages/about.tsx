@@ -1,7 +1,19 @@
 import { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
+import ProjectCard, { ProjectCardMeta } from "../components/projectCard/ProjectCard";
 const Home: NextPage = () => {
+    const zamosMeta: ProjectCardMeta = {
+        name: "zamos",
+        description: "Zamos is a cpu scheduling simulator made with React, you can add arbitrary number of processes with different arrival times, execution times and IO intervals and choose a scheduling algorithm then the simulator will show you a gannt chart of the timeline of the processes",
+        link: "https://zamos.zagy.tech/",
+        thumbnail: 'https://picsum.photos/500/500',
+    }
+    const zagyMeta: ProjectCardMeta = {
+        name: "zagy",
+        description: "Zamos is a cpu scheduling simulator made with React, you can add arbitrary number of processes with different arrival times, execution times and IO intervals and choose a scheduling algorithm then the simulator will show you a gannt chart of the timeline of the processes",
+        link: "https://github.com/the-zagy/zagy/",
+        thumbnail: 'https://picsum.photos/500/500',
+    }
     return (
         <>
             <Head>
@@ -22,13 +34,8 @@ const Home: NextPage = () => {
                 <section className="mt-4 border-t py-2">
                     <h1 className="text-xl">Other projects</h1>
                     <section>
-                        <h2 className="text-lg font-bold text-sky-700 dark:text-dark-primary-500 hover:text-dark-secondary-600"><Link href="https://zamos.zagy.tech/">Zamos</Link></h2>
-                        <div className="italic">
-                            Zamos is a cpu scheduling simulator made with React, you can add arbitrary number of processes with different arrival times, execution times and IO intervals and choose a scheduling algorithm then the simulator will show you a gannt chart of the timeline of the processes
-                            <div>
-                                You can check it <Link className="font-bold text-sky-700 dark:text-dark-primary-500 hover:text-dark-secondary-600" href="https://zamos.zagy.tech/">here</Link>
-                            </div>
-                        </div>
+                    <ProjectCard {...zamosMeta} direction={1} />
+                    <ProjectCard {...zagyMeta} direction={2} />
                     </section>
                 </section>
             </main>
