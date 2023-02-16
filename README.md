@@ -14,7 +14,7 @@ cache? database? github cms?
 
 ## how to contribute
 
-please make it another file
+[for contributing check CONTRIBUTING.md](/CONTRIBUTING.md)
 
 ## how we developed it
 
