@@ -9,9 +9,45 @@ import { RawMDX, downloadFolderMetaData, downloadFileOrDirectory, type ParsedPos
 import calculateReadingTime from 'reading-time';
 import path from 'path';
 import { readFile, readdir } from 'fs/promises';
+import betterRemarkEmbedder from "better-remark-embedder"
+function handleEmbedderError({ url }: { url: string }) {
+    return `<p>Error embedding <a href="${url}">${url}</a></p>.`
+}
 
-const remarkPlugins: PluggableList = [remarkGfm];
+type GottenHTML = string | null
+function handleEmbedderHtml(html: GottenHTML, info: any) {
+    if (!html) return null
+
+    const url = new URL(info.url)
+    // matches youtu.be and youtube.com
+    if (/youtu\.?be/.test(url.hostname)) {
+        // this allows us to set youtube embeds to 100% width and the
+        // height will be relative to that width with a good aspect ratio
+        return makeEmbed(html, 'youtube')
+    }
+    if (url.hostname.includes('codesandbox.io')) {
+        return makeEmbed(html, 'codesandbox', '80%')
+    }
+    return html
+}
+
+function makeEmbed(html: string, type: string, heightRatio = '56.25%') {
+    return `
+    <div class="embed-${type}" data-embed-type="${type}">
+        ${html}
+    </div>
+  `
+}
+const remarkPlugins: PluggableList = [[betterRemarkEmbedder, {
+    enableOembed: true,
+    transformers: [],
+    handleHTML: handleEmbedderHtml,
+    handleError: handleEmbedderError
+
+}], remarkGfm];
 const rehypePlugins: PluggableList = [slug, toc, rehypePrism]
+
+
 export const parsePost = async (source: RawMDX) => {
     //todo add reading time row in database
     const readingTime = calculateReadingTime(source.mdxFile);
