@@ -9,6 +9,7 @@ import { isValidDateString, dateFormat } from '@acme/utils';
 import Comments from '../../../components/comments/comments';
 import MdxComponents from '~/components/mdx-components';
 import path from 'path';
+import { access } from 'fs/promises';
 
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
@@ -103,7 +104,14 @@ const getPostBySlug = async (slug: string) => {
         }
     })
 }
-
+async function fileExists(path: string) {
+    try {
+        await access(path)
+        return true
+    } catch {
+        return false
+    }
+}
 type PostData = AsyncReturnType<typeof getPostBySlug>;
 type NonNullType<T> = Exclude<T, null | undefined>;  // Remove null and undefined from T
 export const getStaticProps: GetStaticProps = async ({ params }) => {
@@ -116,7 +124,17 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
     if (process.env.APP_ENV === "development") {
         const filePath = path.resolve(path.resolve(path.resolve(), "../../content/blog"), params.id);
-        const content = await readAndParsePost(filePath + ".mdx");
+        let content: any;
+        if (await fileExists(filePath)) {
+            content = await readAndParsePost(filePath);
+        } else if (await fileExists(filePath + ".mdx")) {
+            content = await readAndParsePost(filePath + ".mdx");
+        }
+        else {
+            return {
+                notFound: true
+            }
+        }
         return { props: { post: JSON.parse(JSON.stringify(content)) as Post } }
     }
     const post = await getPostBySlug(params.id);

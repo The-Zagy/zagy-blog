@@ -90,7 +90,7 @@ const isDirectory = (dirOrFilePath: string) => {
     return path.extname(dirOrFilePath) === ""
 }
 const readlocalMdxFileOrDirectory = async (filePath: string) => {
-    if (!(await fileExists(filePath) && await fileExists(filePath + ".mdx"))) throw new Error(`file or directory at ${filePath} does not exist`);
+    if (!(await fileExists(filePath))) throw new Error(`file or directory at ${filePath} does not exist`);
     try {
         if (isDirectory(filePath)) {
             const dirContent = await readdir(filePath);
