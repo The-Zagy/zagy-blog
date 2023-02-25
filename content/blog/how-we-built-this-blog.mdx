@@ -87,7 +87,7 @@ in the database and notifies nextjs server that new content with the extracted s
 ### Behind the scenes
   First when any post changes in any way names of the files changed get sent to the express server, through Github actions
 
-  ```yml {8} showLineNumbers
+  ```yaml  {7} 
 - name: Send a request to revalidate those files
  if: steps.files.outputs.any_modified == 'true'
  uses: fjogeleit/http-request-action@v1
@@ -99,7 +99,7 @@ in the database and notifies nextjs server that new content with the extracted s
    timeout: 1200000
   ```
 then the express server updates the database with the new information and then calls the Next app to inform of the new information
-```ts showLineNumbers
+```ts 
 //in express
 await axios.post(url + 'api/revalidate/', {id},
  {
@@ -111,7 +111,7 @@ await axios.post(url + 'api/revalidate/', {id},
 ```
 and finally the Next app receives the request and updates the visible content to the user
 
-```ts showLineNumbers
+```ts 
 //in next /api/revalidate
 if (req.body && req.body.filePath) await res.revalidate(req.body.id);
 else throw new Error("Body wasn't provided with correct data");
