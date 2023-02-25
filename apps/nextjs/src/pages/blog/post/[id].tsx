@@ -40,7 +40,8 @@ const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
                     userName={post.contributors && post.contributors[0]?.contributor.handle as string} createdAt={String(post?.createdAt)} />
                 <h1 className="lg:text-7xl md:text-5xl text-xl  ">{post.title}</h1>
             </div>
-            <img src={post.bannerUrl || "https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
+            <img src={post.bannerUrl || "https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage"
+                className="rounded-md object-cover object-center" style={{ maxHeight: "500px" }} />
         </div>
     </>
     );
@@ -124,7 +125,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
     if (process.env.APP_ENV === "development") {
         const filePath = path.resolve(path.resolve(path.resolve(), "../../content/blog"), params.id);
-        let content: any;
+        let content: AsyncReturnType<typeof readAndParsePost>;
         if (await fileExists(filePath)) {
             content = await readAndParsePost(filePath);
         } else if (await fileExists(filePath + ".mdx")) {
@@ -135,7 +136,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
                 notFound: true
             }
         }
-        return { props: { post: JSON.parse(JSON.stringify(content)) as Post } }
+        //@ts-ignore
+        console.log(content.meta.bannerUrl)
+        return { props: { post: JSON.parse(JSON.stringify({ code: content.code, ...content.meta })) as Post } }
     }
     const post = await getPostBySlug(params.id);
     if (!post) {

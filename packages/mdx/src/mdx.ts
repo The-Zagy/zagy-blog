@@ -173,7 +173,7 @@ export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolea
     });
 }
 
-export const readAndParsePost = async (filePath: string) => {
+export const readAndParsePost = async (filePath: string): Promise<ParsedPost> => {
     const rawMdx = await readlocalMdxFileOrDirectory(filePath);
-    return await parsePost(rawMdx);
+    return await parsePost(rawMdx) as ParsedPost;
 }
