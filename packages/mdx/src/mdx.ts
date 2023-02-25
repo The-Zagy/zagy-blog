@@ -48,7 +48,7 @@ const remarkPlugins: PluggableList = [[betterRemarkEmbedder, {
     handleHTML: handleEmbedderHtml,
     handleError: handleEmbedderError
     //@ts-ignore
-}], [codeHighlighter.default, { theme: "dark-plus" }], remarkGfm];
+}], [codeHighlighter?.name === "remarkTwoslash" ? codeHighlighter : codeHighlighter.default, { theme: "dark-plus" }], remarkGfm];
 const rehypePlugins: PluggableList = [[rehypeRaw, { passThrough: nodeTypes }], slug, toc]
 export const parsePost = async (source: RawMDX) => {
     //todo add reading time row in database
@@ -90,7 +90,7 @@ const isDirectory = (dirOrFilePath: string) => {
     return path.extname(dirOrFilePath) === ""
 }
 const readlocalMdxFileOrDirectory = async (filePath: string) => {
-    if (!(await fileExists(filePath))) throw new Error(`file or directory at ${filePath} does not exist`);
+    if (!(await fileExists(filePath) && await fileExists(filePath + ".mdx"))) throw new Error(`file or directory at ${filePath} does not exist`);
     try {
         if (isDirectory(filePath)) {
             const dirContent = await readdir(filePath);
@@ -154,7 +154,7 @@ export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolea
     if (filter === undefined) {
         filter = (_) => true;
     }
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.APP_ENV === "development") {
         filesAndDirs = await readLocalMdxFiles();
     }
     else {
