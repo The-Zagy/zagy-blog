@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import { getMDXComponent } from '~/utils/mdx-client';
 import { AsyncReturnType } from '@acme/utils';
 import { Post, prisma } from "@acme/db";
+import { readAndParsePost } from "@acme/mdx"
 import { isValidDateString, dateFormat } from '@acme/utils';
 import Comments from '../../../components/comments/comments';
 import MdxComponents from '~/components/mdx-components';
+import path from 'path';
 
 const UserCard: React.FC<{ userName: string, userImage: string, createdAt: string, avgReadingTime: string }> = ({ userName, userImage, createdAt, avgReadingTime }) => {
     return (
@@ -33,8 +35,8 @@ const PostHeader: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
 
             <div className='flex flex-col gap-2'>
                 <UserCard avgReadingTime={post.readingTime}
-                    userImage={post.contributors[0]?.contributor.image as string}
-                    userName={post.contributors[0]?.contributor.handle as string} createdAt={post?.createdAt.toString()} />
+                    userImage={post.contributors && post.contributors[0]?.contributor.image as string}
+                    userName={post.contributors && post.contributors[0]?.contributor.handle as string} createdAt={String(post?.createdAt)} />
                 <h1 className="lg:text-7xl md:text-5xl text-xl  ">{post.title}</h1>
             </div>
             <img src={post.bannerUrl || "https://media.sproutsocial.com/uploads/2017/01/Instagram-Post-Ideas.png"} alt="postImage" className="h-min rounded-md" />
@@ -105,10 +107,17 @@ const getPostBySlug = async (slug: string) => {
 type PostData = AsyncReturnType<typeof getPostBySlug>;
 type NonNullType<T> = Exclude<T, null | undefined>;  // Remove null and undefined from T
 export const getStaticProps: GetStaticProps = async ({ params }) => {
+
+
     if (params === undefined || typeof params.id !== "string") {
         return {
             notFound: true,
         }
+    }
+    if (process.env.APP_ENV === "development") {
+        const filePath = path.resolve(path.resolve(path.resolve(), "../../content/blog"), params.id);
+        const content = await readAndParsePost(filePath + ".mdx");
+        return { props: { post: JSON.parse(JSON.stringify(content)) as Post } }
     }
     const post = await getPostBySlug(params.id);
     if (!post) {
@@ -116,6 +125,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             notFound: true
         }
     }
+
     return {
         props: { post: JSON.parse(JSON.stringify(post)) as Post },
 

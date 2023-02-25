@@ -7,6 +7,7 @@
     "start": "pnpm with-env next start",
     "clean": "rm -rf .next .turbo node_modules",
     "dev": "pnpm with-env next dev",
+    "experimental:dev":"pnpm with-env next-remote-watch ../../../../content/blog/",
     "lint": "SKIP_ENV_VALIDATION=1 next lint",
     "type-check": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --"
@@ -16,6 +17,7 @@
     "@acme/auth": "*",
     "@acme/constants": "*",
     "@acme/db": "*",
+    "@acme/mdx": "*",
     "@acme/tailwind-config": "*",
     "@acme/utils": "*",
     "@heroicons/react": "^2.0.14",
@@ -33,6 +35,7 @@
     "react": "18.2.0",
     "react-content-loader": "^6.2.0",
     "react-dom": "18.2.0",
+    "sharp": "^0.31.3",
     "use-debounce": "^9.0.3",
     "zod": "^3.20.2"
   },
@@ -46,6 +49,7 @@
     "dotenv-cli": "^7.0.0",
     "eslint": "^8.32.0",
     "eslint-config-next": "^13.1.6",
+    "next-remote-watch": "^2.0.0",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.4",
     "typescript": "^4.9.4"
