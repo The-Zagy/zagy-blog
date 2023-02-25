@@ -1,5 +1,6 @@
 
 export {
     downloadAndParsePosts,
-    parsePost
+    parsePost,
+    readAndParsePost
 } from "./src/mdx"

@@ -15,13 +15,15 @@
         "@acme/db": "*",
         "@acme/utils": "*",
         "@jsdevtools/rehype-toc": "^3.0.2",
+        "@mdx-js/mdx": "^2.3.0",
         "better-remark-embedder": "^0.0.3",
         "esbuild": "^0.17.5",
         "mdx-bundler": "^9.2.1",
         "reading-time": "^1.5.0",
-        "rehype-prism-plus": "^1.5.0",
+        "rehype-raw": "^6.1.1",
         "rehype-slug": "^5.1.0",
         "remark-gfm": "^3.0.1",
+        "remark-shiki-twoslash": "^3.1.1",
         "unified": "^10.1.2"
     },
     "devDependencies": {

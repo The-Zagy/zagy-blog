@@ -1,15 +1,18 @@
 
 import { bundleMDX } from 'mdx-bundler';
 import { PluggableList } from 'unified';
-import rehypePrism from 'rehype-prism-plus';
 import remarkGfm from 'remark-gfm'
+import codeHighlighter, { Options } from "remark-shiki-twoslash"
 import slug from "rehype-slug";
 import toc from "@jsdevtools/rehype-toc";
+import rehypeRaw from 'rehype-raw'
 import { RawMDX, downloadFolderMetaData, downloadFileOrDirectory, type ParsedPost, Githubfile } from '@acme/utils';
 import calculateReadingTime from 'reading-time';
 import path from 'path';
-import { readFile, readdir } from 'fs/promises';
+import { nodeTypes } from "@mdx-js/mdx"
+import { access, readFile, readdir } from 'fs/promises';
 import betterRemarkEmbedder from "better-remark-embedder"
+
 function handleEmbedderError({ url }: { url: string }) {
     return `<p>Error embedding <a href="${url}">${url}</a></p>.`
 }
@@ -38,19 +41,19 @@ function makeEmbed(html: string, type: string, heightRatio = '56.25%') {
     </div>
   `
 }
+
 const remarkPlugins: PluggableList = [[betterRemarkEmbedder, {
     enableOembed: true,
     transformers: [],
     handleHTML: handleEmbedderHtml,
     handleError: handleEmbedderError
-
-}], remarkGfm];
-const rehypePlugins: PluggableList = [slug, toc, rehypePrism]
-
-
+    //@ts-ignore
+}], [codeHighlighter.default, { theme: "dark-plus" }], remarkGfm];
+const rehypePlugins: PluggableList = [[rehypeRaw, { passThrough: nodeTypes }], slug, toc]
 export const parsePost = async (source: RawMDX) => {
     //todo add reading time row in database
     const readingTime = calculateReadingTime(source.mdxFile);
+
     const { code, frontmatter } = await bundleMDX({
 
         source: source.mdxFile,
@@ -73,61 +76,36 @@ export const parsePost = async (source: RawMDX) => {
             }
         }
     )
-
 }
-export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolean) => {
-    // if no filter function provided assume user want all folder content
 
-    if (filter === undefined) {
-        filter = (_) => true;
+async function fileExists(path: string) {
+    try {
+        await access(path)
+        return true
+    } catch {
+        return false
     }
-    if (process.env.APP_ENV === "development") {
-        const files = [];
-        const dirs = [];
-        const rawmdx: RawMDX[] = [];
-        const paths: string[] = [];
-        console.log(path.resolve());
-        const contentPath = path.resolve(path.resolve(), "../../content/blog");
-        console.log(contentPath, "---------------------------")
-        const filesAndDirs = await readdir(contentPath);
-        for (const dirOrFile of filesAndDirs) {
-            if (path.extname(dirOrFile) === "") dirs.push(dirOrFile);
-            else files.push(dirOrFile);
-        }
-        for (const file of files) {
-            const pathTemp = path.resolve(contentPath, file)
-            paths.push(pathTemp)
-            rawmdx.push({
-                mdxFile: await readFile(pathTemp, { encoding: "utf-8" }),
-                githubPath: pathTemp,
-                slug: path.parse(pathTemp).name,
-                contributors: {
-                    author: {
-                        avatar_url: "https://avatars.githubusercontent.com/u/61756360?v=4",
-                        login: "sandstone991",
-                        id: 61756360
-                    },
-                    restOfContributers: []
-                }
-            })
-        }
-        for (const dir of dirs) {
-            const pathTemp = path.resolve(contentPath, dir);
-            paths.push(pathTemp);
-            const dirContent = await readdir(pathTemp);
+}
+const isDirectory = (dirOrFilePath: string) => {
+    return path.extname(dirOrFilePath) === ""
+}
+const readlocalMdxFileOrDirectory = async (filePath: string) => {
+    if (!(await fileExists(filePath))) throw new Error(`file or directory at ${filePath} does not exist`);
+    try {
+        if (isDirectory(filePath)) {
+            const dirContent = await readdir(filePath);
             const mdxFileIndex = dirContent.findIndex((i => path.extname(i) === ".mdx"));
             if (mdxFileIndex === -1) throw new Error("I don't know 1");
             const mdxFile = dirContent.splice(mdxFileIndex, 1).pop();
             if (mdxFile === undefined) throw new Error("I don't know 2");
-            const mdxFileContent = await readFile(path.resolve(contentPath, dir, mdxFile), { encoding: "utf-8" });
+            const mdxFileContent = await readFile(path.resolve(filePath, mdxFile), { encoding: "utf-8" });
             const files = await Promise.all(dirContent.map(async (i) => ({
-                [i]: await readFile(path.resolve(contentPath, dir, i), { encoding: "utf-8" })
+                [i]: await readFile(path.resolve(filePath, i), { encoding: "utf-8" })
             })))
-            console.log(files);
-            rawmdx.push({
+            return ({
                 mdxFile: mdxFileContent,
-                githubPath: pathTemp,
-                slug: path.parse(pathTemp).name,
+                githubPath: filePath,
+                slug: path.parse(filePath).name,
                 contributors: {
                     author: {
                         avatar_url: "https://avatars.githubusercontent.com/u/61756360?v=4",
@@ -140,30 +118,62 @@ export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolea
                     return ({ ...acc, ...cur })
                 }, {})
             })
+        } else {
+
+            return ({
+                mdxFile: await readFile(filePath, { encoding: "utf-8" }),
+                githubPath: filePath,
+                slug: path.parse(filePath).name,
+                contributors: {
+                    author: {
+                        avatar_url: "https://avatars.githubusercontent.com/u/61756360?v=4",
+                        login: "sandstone991",
+                        id: 61756360
+                    },
+                    restOfContributers: []
+                }
+            })
         }
-
-        const posts = await Promise.all(rawmdx.map(async (source, i) => await parsePost(source))) as ParsedPost[];
-        console.dir(posts, { depth: 5 })
-        return (posts).sort((a, b) => {
-            const dateA = new Date(a.meta.date);
-            const dateB = new Date(b.meta.date);
-            if (dateA < dateB) return 1;
-            if (dateA > dateB) return -1;
-            return 0;
-        });
+    } catch (err) {
+        throw err as Error;
     }
-
-    const dir = await downloadFolderMetaData("/content/blog");
-    const filesAndDirs = (await Promise.all(dir.filter(filter).map(async (file) => downloadFileOrDirectory(file))))
-        .filter((i): i is RawMDX => i !== null);
-    console.dir(filesAndDirs, { depth: 5 })
-    const posts = Promise.all(filesAndDirs.map(async (source) => await parsePost(source))) as Promise<ParsedPost[]>;
-    console.dir(await posts, { depth: 5 })
-    return (await posts).sort((a, b) => {
+}
+const readLocalMdxFiles = async () => {
+    const contentPath = path.resolve(path.resolve(), "../../content/blog");
+    const promises: Promise<RawMDX>[] = []
+    const filesAndDirs = await readdir(contentPath);
+    for (const fileOrDir of filesAndDirs) {
+        const pathTemp = path.resolve(contentPath, fileOrDir);
+        promises.push(readlocalMdxFileOrDirectory(pathTemp));
+    }
+    return await Promise.all(promises);
+}
+export const downloadAndParsePosts = async (filter?: (val: Githubfile) => boolean) => {
+    // if no filter function provided assume user want all folder content
+    let filesAndDirs: RawMDX[];
+    if (filter === undefined) {
+        filter = (_) => true;
+    }
+    if (process.env.NODE_ENV === "development") {
+        filesAndDirs = await readLocalMdxFiles();
+    }
+    else {
+        const dir = await downloadFolderMetaData("/content/blog");
+        filesAndDirs = (await Promise.all(dir.filter(filter).map(async (file) => downloadFileOrDirectory(file))))
+            .filter((i): i is RawMDX => i !== null);
+    }
+    const posts = await Promise.all(filesAndDirs.map(async (source) => await parsePost(source))) as ParsedPost[];
+    console.dir(posts, { depth: 5 })
+    return posts.sort((a, b) => {
         const dateA = new Date(a.meta.date);
         const dateB = new Date(b.meta.date);
         if (dateA < dateB) return 1;
         if (dateA > dateB) return -1;
         return 0;
     });
+}
+
+export const readAndParsePost = async (filePath: string) => {
+    const rawMdx = await readlocalMdxFileOrDirectory(filePath);
+    return await parsePost(rawMdx);
 }

@@ -1,322 +1,316 @@
-pre[class*="language-"],
-code[class*="language-"] {
-	color: #d4d4d4;
-	text-shadow: none;
-	font-family: Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace;
-	direction: ltr;
-	text-align: left;
-	white-space: pre;
-	word-spacing: normal;
-	word-break: normal;
-	line-height: 1.5;
-	-moz-tab-size: 4;
-	-o-tab-size: 4;
-	tab-size: 4;
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
-}
+/*  Start of Shiki Twoslash CSS:
 
-pre[class*="language-"]::selection,
-code[class*="language-"]::selection,
-pre[class*="language-"] *::selection,
-code[class*="language-"] *::selection {
-	text-shadow: none;
-	background: #264F78;
-}
+Code blocks structurally look like: 
 
-@media print {
-	pre[class*="language-"],
-	code[class*="language-"] {
-		text-shadow: none;
-	}
-}
-
-pre[class*="language-"] {
-	padding: 1em;
-	margin: .5em 0;
-	overflow: auto;
-	background: #1e1e1e;
-}
-
-:not(pre) > code[class*="language-"] {
-	padding: .1em .3em;
-	border-radius: .3em;
-	color: #db4c69;
-	background: #1e1e1e;
-}
-/*********************************************************
-* Tokens
-*/
-.namespace {
-	opacity: .7;
-}
-
-.token.doctype .token.doctype-tag {
-	color: #569CD6;
-}
-
-.token.doctype .token.name {
-	color: #9cdcfe;
-}
-
-.token.comment,
-.token.prolog {
-	color: #6a9955;
-}
-
-.token.punctuation,
-.language-html .language-css .token.punctuation,
-.language-html .language-javascript .token.punctuation {
-	color: #d4d4d4;
-}
-
-.token.property,
-.token.tag,
-.token.boolean,
-.token.number,
-.token.constant,
-.token.symbol,
-.token.inserted,
-.token.unit {
-	color: #b5cea8;
-}
-
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.deleted {
-	color: #ce9178;
-}
-
-.language-css .token.string.url {
-	text-decoration: underline;
-}
-
-.token.operator,
-.token.entity {
-	color: #d4d4d4;
-}
-
-.token.operator.arrow {
-	color: #569CD6;
-}
-
-.token.atrule {
-	color: #ce9178;
-}
-
-.token.atrule .token.rule {
-	color: #c586c0;
-}
-
-.token.atrule .token.url {
-	color: #9cdcfe;
-}
-
-.token.atrule .token.url .token.function {
-	color: #dcdcaa;
-}
-
-.token.atrule .token.url .token.punctuation {
-	color: #d4d4d4;
-}
-
-.token.keyword {
-	color: #569CD6;
-}
-
-.token.keyword.module,
-.token.keyword.control-flow {
-	color: #c586c0;
-}
-
-.token.function,
-.token.function .token.maybe-class-name {
-	color: #dcdcaa;
-}
-
-.token.regex {
-	color: #d16969;
-}
-
-.token.important {
-	color: #569cd6;
-}
-
-.token.italic {
-	font-style: italic;
-}
-
-.token.constant {
-	color: #9cdcfe;
-}
-
-.token.class-name,
-.token.maybe-class-name {
-	color: #4ec9b0;
-}
-
-.token.console {
-	color: #9cdcfe;
-}
-
-.token.parameter {
-	color: #9cdcfe;
-}
-
-.token.interpolation {
-	color: #9cdcfe;
-}
-
-.token.punctuation.interpolation-punctuation {
-	color: #569cd6;
-}
-
-.token.boolean {
-	color: #569cd6;
-}
-
-.token.property,
-.token.variable,
-.token.imports .token.maybe-class-name,
-.token.exports .token.maybe-class-name {
-	color: #9cdcfe;
-}
-
-.token.selector {
-	color: #d7ba7d;
-}
-
-.token.escape {
-	color: #d7ba7d;
-}
-
-.token.tag {
-	color: #569cd6;
-}
-
-.token.tag .token.punctuation {
-	color: #808080;
-}
-
-.token.cdata {
-	color: #808080;
-}
-
-.token.attr-name {
-	color: #9cdcfe;
-}
-
-.token.attr-value,
-.token.attr-value .token.punctuation {
-	color: #ce9178;
-}
-
-.token.attr-value .token.punctuation.attr-equals {
-	color: #d4d4d4;
-}
-
-.token.entity {
-	color: #569cd6;
-}
-
-.token.namespace {
-	color: #4ec9b0;
-}
-/*********************************************************
-* Language Specific
+<pre.shikiclass='shiki lsp twoslash [theme-name]'>
+  <div class='language-id'>[lang-id]</div>
+    <div class='code-container'>
+      <code>[the code as a series of spans]</code>
+      <a href='playground...'>Try</a> (optional)
+    </div>
+  </pre> 
 */
 
-pre[class*="language-javascript"],
-code[class*="language-javascript"],
-pre[class*="language-jsx"],
-code[class*="language-jsx"],
-pre[class*="language-typescript"],
-code[class*="language-typescript"],
-pre[class*="language-tsx"],
-code[class*="language-tsx"] {
-	color: #9cdcfe;
+pre.shiki{
+	/* In theory shiki will overwrite these, but this is to make sure there are defaults regardless */
+	 background-color: white;
+	 color: black;
+	/* Give it some space to breathe */
+	 padding: 12px;
+	 margin-bottom: 3rem;
+    /* Important to allow the code to move horizontally; */
+    overflow-x: auto;
+    position: relative;
 }
 
-pre[class*="language-css"],
-code[class*="language-css"] {
-	color: #ce9178;
+ pre.shiki {
+    overflow-x: auto;
 }
-
-pre[class*="language-html"],
-code[class*="language-html"] {
-	color: #d4d4d4;
+ pre.shiki:hover .dim {
+	 opacity: 1;
 }
-
-.language-regex .token.anchor {
-	color: #dcdcaa;
+ pre.shiki div.dim {
+	 opacity: 0.5;
 }
-
-.language-html .token.punctuation {
-	color: #808080;
+ pre.shiki div.dim, pre.shiki div.highlight {
+	 margin: 0;
+	 padding: 0;
 }
-/*********************************************************
-* Line highlighting
-*/
-pre[class*="language-"] > code[class*="language-"] {
-	position: relative;
-	z-index: 1;
+ pre.shiki div.highlight {
+	 opacity: 1;
+	 background-color: #f1f8ff;
 }
-
-.line-highlight.line-highlight {
+ pre.shiki div.line {
+	 min-height: 1rem;
+	 
+}
+.line.highlight{
 	background: #f7ebc6;
 	box-shadow: inset 5px 0 0 #f7d87c;
 	z-index: 0;
 }
+.line.highlight {
+	display: inline; /* 1 */
+	min-width: 99%; /* 2 */
 
-pre {
-	overflow-x: auto;
   }
-  
-  /**
-   * Inspired by gatsby remark prism - https://www.gatsbyjs.com/plugins/gatsby-remark-prismjs/
-   * 1. Make the element just wide enough to fit its content.
-   * 2. Always fill the visible space in .code-highlight.
-   */
-  .code-highlight {
-	float: left; /* 1 */
-	min-width: 100%; /* 2 */
-  }
-  
-  .code-line {
-	display: block;
-	padding-left: 16px;
-	padding-right: 16px;
-	margin-left: -16px;
-	margin-right: -16px;
-	border-left: 4px solid rgba(0, 0, 0, 0); /* Set placeholder for highlight accent border color to transparent */
-  }
-  
-  .code-line.inserted {
-	background-color: rgba(16, 185, 129, 0.2); /* Set inserted line (+) color */
-  }
-  
-  .code-line.deleted {
-	background-color: rgba(239, 68, 68, 0.2); /* Set deleted line (-) color */
-  }
-  
-  .highlight-line {
-	margin-left: -16px;
-	margin-right: -16px;
-	background-color: rgba(55, 65, 81, 0.5); /* Set highlight bg color */
-	border-left: 4px solid rgb(59, 130, 246); /* Set highlight accent border color */
-  }
-  
-  .line-number::before {
-	display: inline-block;
-	width: 1rem;
-	text-align: right;
-	margin-right: 16px;
-	margin-left: -8px;
-	color: rgb(156, 163, 175); /* Line number color */
-	content: attr(line);
-  }
+
+/** Don't show the language identifiers */
+pre.shiki .language-id{
+    display: none;
+}
+
+/* Visually differentiates twoslash code samples  */
+ pre.twoslash {
+	 border-color: #719af4;
+}
+
+/** When you mouse over the pre, show the underlines */
+pre.twoslash:hover data-lsp {
+    border-color: #747474;
+}
+
+/** The tooltip-like which provides the LSP response */
+pre.twoslash data-lsp:hover::before {
+    content: attr(lsp);
+    position: absolute;
+    transform: translate(0, 1rem);
+    background-color: #3f3f3f;
+    color: #fff;
+    text-align: left;
+    padding: 5px 8px;
+    border-radius: 2px;
+    font-family: "JetBrains Mono", Menlo, Monaco, Consolas, Courier New, monospace;
+    font-size: 14px;
+    white-space: pre-wrap;
+    z-index: 100;
+}
+
+pre.shiki.code-container {
+	 overflow: auto;
+}
+/* The try button */
+ pre.shiki.code-container > a {
+	 position: absolute;
+	 right: 8px;
+	 bottom: 8px;
+	 border-radius: 4px;
+	 border: 1px solid #719af4;
+	 padding: 0 8px;
+	 color: #719af4;
+	 text-decoration: none;
+	 opacity: 0;
+	 transition-timing-function: ease;
+	 transition: opacity 0.3s;
+}
+/* Respect no animations */
+@media (prefers-reduced-motion: reduce) {
+	 pre.shiki.code-container > a {
+		 transition: none;
+	}
+}
+ pre.shiki.code-container > a:hover {
+	 color: white;
+	 background-color: #719af4;
+}
+ pre.shiki.code-container:hover a {
+	 opacity: 1;
+}
+
+ pre.shikicode {
+	 font-size: 15px;
+	 font-family: "JetBrains Mono", Menlo, Monaco, Consolas, Courier New, monospace;;
+	 white-space: pre;
+	 -webkit-overflow-scrolling: touch;
+}
+ pre.shikicode a {
+	 text-decoration: none;
+}
+ pre.shikidata-err {
+    /* Extracted from VS Code */
+	 background: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%206%203'%20enable-background%3D'new%200%200%206%203'%20height%3D'3'%20width%3D'6'%3E%3Cg%20fill%3D'%23c94824'%3E%3Cpolygon%20points%3D'5.5%2C0%202.5%2C3%201.1%2C3%204.1%2C0'%2F%3E%3Cpolygon%20points%3D'4%2C0%206%2C2%206%2C0.6%205.4%2C0'%2F%3E%3Cpolygon%20points%3D'0%2C2%201%2C3%202.4%2C3%200%2C0.6'%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat-x bottom left;
+	 padding-bottom: 3px;
+}
+ pre.shiki.query {
+	 margin-bottom: 10px;
+	 color: #137998;
+	 display: inline-block;
+}
+
+  /* In order to have the 'popped out' style design and to not break the layout
+  /* we need to place a fake and un-selectable copy of the error which _isn't_ broken out
+  /* behind the actual error message.
+
+  /* This sections keeps both of those two in in sync  */
+
+ pre.shiki.error, pre.shiki.error-behind {
+	 margin-left: -14px;
+	 margin-top: 8px;
+	 margin-bottom: 4px;
+	 padding: 6px;
+	 padding-left: 14px;
+	 width: calc(100% - 20px);
+	 white-space: pre-wrap;
+	 display: block;
+}
+ pre.shiki.error {
+	 position: absolute;
+	 background-color: #fee;
+	 border-left: 2px solid #bf1818;
+	/* Give the space to the error code */
+	 display: flex;
+	 align-items: center;
+	 color: black;
+}
+ pre.shiki.error .code {
+	 display: none;
+}
+ pre.shiki.error-behind {
+	 user-select: none;
+	 visibility: transparent;
+	 color: #fee;
+}
+/* Queries */
+ pre.shiki.arrow {
+	/* Transparent background */
+	 background-color: #eee;
+	 position: relative;
+	 top: -7px;
+	 margin-left: 0.1rem;
+	/* Edges */
+	 border-left: 1px solid #eee;
+	 border-top: 1px solid #eee;
+	 transform: translateY(25%) rotate(45deg);
+	/* Size */
+	 height: 8px;
+	 width: 8px;
+}
+ pre.shiki.popover {
+	 margin-bottom: 10px;
+	 background-color: #eee;
+	 display: inline-block;
+	 padding: 0 0.5rem 0.3rem;
+	 margin-top: 10px;
+	 border-radius: 3px;
+}
+/* Completion */
+ pre.shiki.inline-completions ul.dropdown {
+	 display: inline-block;
+	 position: absolute;
+	 width: 240px;
+	 background-color: gainsboro;
+	 color: grey;
+	 padding-top: 4px;
+	 font-family: var(--code-font);
+	 font-size: 0.8rem;
+	 margin: 0;
+	 padding: 0;
+	 border-left: 4px solid #4b9edd;
+}
+ pre.shiki.inline-completions ul.dropdown::before {
+	 background-color: #4b9edd;
+	 width: 2px;
+	 position: absolute;
+	 top: -1.2rem;
+	 left: -3px;
+	 content: " ";
+}
+ pre.shiki.inline-completions ul.dropdown li {
+	 overflow-x: hidden;
+	 padding-left: 4px;
+	 margin-bottom: 4px;
+}
+ pre.shiki.inline-completions ul.dropdown li.deprecated {
+	 text-decoration: line-through;
+}
+ pre.shiki.inline-completions ul.dropdown li span.result-found {
+	 color: #4b9edd;
+}
+ pre.shiki.inline-completions ul.dropdown li span.result {
+	 width: 100px;
+	 color: black;
+	 display: inline-block;
+}
+ .dark-theme .markdown pre.shiki{
+	 background-color: #d8d8d8;
+	 border-color: #ddd;
+	 filter: invert(98%) hue-rotate(180deg);
+}
+ data-lsp {
+	/* Ensures there's no 1px jump when the hover happens */
+	 border-bottom: 1px dotted transparent;
+	/* Fades in unobtrusively */
+	 transition-timing-function: ease;
+	 transition: border-color 0.3s;
+}
+/* Respect people's wishes to not have animations */
+ @media (prefers-reduced-motion: reduce) {
+	 data-lsp {
+		 transition: none;
+	}
+}
+
+/** Annotations support, providing a tool for meta commentary */
+.tag-container {
+	position: relative;
+}
+.tag-container .twoslash-annotation {
+	position: absolute;
+	font-family: "JetBrains Mono", Menlo, Monaco, Consolas, Courier New, monospace;
+	right: -10px;
+   /** Default annotation text to 200px */
+	width: 200px;
+	color: #187abf;
+	background-color: #fcf3d9 bb;
+}
+.tag-container .twoslash-annotation p {
+	text-align: left;
+	font-size: 0.8rem;
+	line-height: 0.9rem;
+}
+.tag-container .twoslash-annotation svg {
+	float: left;
+	margin-left: -44px;
+}
+.tag-container .twoslash-annotation.left {
+	right: auto;
+	left: -200px;
+}
+.tag-container .twoslash-annotation.left svg {
+	float: right;
+	margin-right: -5px;
+}
+
+/** Support for showing console log/warn/errors inline */
+pre.shiki.logger {
+	display: flex;
+	align-items: center;
+	color: black;
+	padding: 6px;
+	padding-left: 8px;
+	width: calc(100% - 19px);
+	white-space: pre-wrap;
+}
+pre.shiki.logger svg {
+	margin-right: 9px;
+}
+pre.shiki.logger.error-log {
+	background-color: #fee;
+	border-left: 2px solid #bf1818;
+}
+pre.shiki.logger.warn-log {
+	background-color: #ffe;
+	border-left: 2px solid #eae662;
+}
+pre.shiki.logger.log-log {
+	background-color: #e9e9e9;
+	border-left: 2px solid #ababab;
+}
+pre.shiki.logger.log-log svg {
+	margin-left: 6px;
+	margin-right: 9px;
+}
+/*********************************************************
+* Line highlighting
+*/
+
