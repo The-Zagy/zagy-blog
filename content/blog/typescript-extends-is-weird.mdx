@@ -39,7 +39,7 @@ Now with that out of the way lets discuss the more difficult part of extends
 Back in primary school you if A = {1,2} and B = {1,2,3,4} than means that A ⊂ B meaning that A is a `subset` of B or A fits in B
 Now types in typescript is similar, if A extends B that means that A ⊂ B or A fits in B or in other words 
 <Callout type="note">
-A extends B means that every value that can works for the type A can work for the type  
+A extends B means that every value that can works for the type A can work for the type B
 </Callout>
 but please note that this is not a two-way relationship 
 <Callout type="con">
@@ -102,7 +102,7 @@ type answer_8 = typeof Date extends { new (...args: any[]): any }
 ```
 
 Now to explain those answers, I want to you to think with me and ask the following questions
-can the type on the left fit in the type on the right or in other word is the type of the right more general than the type on the right?
+can the type on the left fit in the type on the right or in other word is the type of the right more general than the type on the left?
 Ok first
 1. `64 extends number`, true because the set containing 64 can fit inside the set of all number, in other words 64 is a "more *specific* version of number" 
 2. `number extends 64`, false because the set of all numbers cannot possible belong to the set containing the number 64, in other words number is a more general version of 64
@@ -128,7 +128,7 @@ let sword:SharpWeapon = {damage:1,bleedDamage:5};
 ```
 here SharpWeapon is a more *specific* version of Weapon, because we've put another constraint for the user of the interface
 when we added `bleedDamage` so logically speaking every SharpWeapon is a Weapon but not every Weapon is a SharpWeapon
-just like extends taught us that the operand on the left must fit in on the operand on the right, now remember when I told you
+just like extends taught us that the operand on the left must fit in the operand on the right, now remember when I told you
 that some people like to think of A extends B as A ≤ B and not to think that way? it's time to tell you why
 
 when I added bleedDamage to the SharpWeapon interface I've made the interface "bigger" it has to carry two values now
