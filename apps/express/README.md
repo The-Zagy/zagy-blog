@@ -1,23 +1,37 @@
 # Express
 
-gotta said i'm still thinking of the serverless migrations, at least i want to learn it in another project
-
-^
-|
-|
-Thinks serverless gonna solve his problems lol
-
-^
-|
-|
-bro can use new million library but i can't try learning new thing lol
-
 ## why another app??????????????
 
 because we're poor bro stop asking
 
 ## end points
 
-## todo
+- '/'
 
-please edit the revalidate handler i hate looking at it
+- '/revalidate'
+
+- '/seed'
+
+### Revalidation Rules
+
+1. if the modified file is from the base dir which is "content/blog"
+
+    1. modified => insert into the filter with true[means will get downloaded from github]
+
+    2. added => insert into the filter with true[means will get downloaded from github]
+
+    3. deleted => be falsy in the filter hash or don't insert it at all [and only will be deleted from the database]
+
+2. if the file/folder is not in the base dir [in sub dir like "content/blog/mypost/"]
+
+    1. added any file => insert the dir name in the hash which for example would be "content/blog/myPost"[download the dir from github]
+
+    2. modified any file => insert the dir name in the hash which for example would be "content/blog/myPost"[download the dir from github]
+
+    3. deleted the "index.mdx" => add the folder path to the hash as falsy[supposed to be deleted from the database only]
+
+    4. deleted other file like component for example => insert in the hash the "dir name" [download the dir from github]
+
+> NOTE after those operation express app call nextjs to let it update the cache
+
+## todo

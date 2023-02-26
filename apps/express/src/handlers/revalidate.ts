@@ -1,169 +1,215 @@
-import * as path from 'path';
-import { NextFunction, Request, Response } from "express";
-import { Githubfile } from '@acme/utils';
-import { upsertPost, upsertCategoryToPost, upsertUserToPost, postsCount, PrismaClient } from "@acme/db";
-import { downloadAndParsePosts } from '@acme/mdx';
+import * as path from "path";
 import axios from "axios";
+import { NextFunction, Request, Response } from "express";
+import { NUMBER_OF_POSTS_IN_A_PAGE } from "@acme/constants";
+import {
+    PrismaClient,
+    postsCount,
+    upsertCategoryToPost,
+    upsertPost,
+    upsertUserToPost,
+} from "@acme/db";
+import { downloadAndParsePosts } from "@acme/mdx";
+import { Githubfile } from "@acme/utils";
+
 const prisma = new PrismaClient();
+
 const deletePost = async (slug: string) => {
     await prisma.post.delete({
         where: {
-            slug
+            slug,
         },
         include: {
             contributors: true,
             tags: true,
-        }
+        },
     });
-}
+};
+
 // function to call next app to revalidate pages to new data
-async function callNextApp(filePath: string): Promise<void> {
-    const url = process.env.NEXT_URL || 'http://localhost:3000/';
-    await axios.post(url + 'api/revalidate/', {
-        filePath
-    }, {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': process.env.SEED_PASS,
-        }
-    });
+async function revalidateNextPage(filePath: string): Promise<void> {
+    const url = process.env.NEXT_URL || "http://localhost:3000/";
+    await axios.post(
+        url + "api/revalidate/",
+        {
+            filePath,
+        },
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: process.env.SEED_PASS,
+            },
+        },
+    );
 }
-const isContentBaseDir = (file: string) => {
+
+const isInContentBaseDir = (file: string) => {
     const dir = path.parse(file).dir;
-    const isDirectory = path.basename(dir) === 'blog';
+    const isDirectory = path.basename(dir) === "blog";
     return isDirectory;
 };
+
 interface RevalidateReqStructure {
     added: string[];
     deleted: string[];
     modified: string[];
     renamed: string[];
 }
-// function to create filter function for downloadAndParsePosts
-const createPostsFilter = (body: RevalidateReqStructure) => {
-    const hash: { [k: string]: boolean } = {};
+
+type GithubDownloadFilter = (val: Githubfile) => boolean;
+type Dict<T> = { [k: string]: T };
+/**
+ * return two filters one that decides what to download from github the other is to decide what should be deleted from the database
+ * @param body the request body of type RevalidateReqStructure)
+ * @returns
+ */
+export const createPostsFilter = (
+    body: RevalidateReqStructure,
+): {
+    downloadFilterFunction: GithubDownloadFilter;
+    deleteFilter: string[];
+    downloadFilter: Dict<0 | 1>;
+} => {
+    const downloadFilter: Dict<1 | 0> = {};
+    const deleteFilter: string[] = [];
+
+    // handle added array
     for (const file of body.added) {
-        if (!isContentBaseDir(file)) {
+        if (!isInContentBaseDir(file)) {
             const dir = path.parse(file).dir;
-            hash[dir] = true;
-            continue;
+            downloadFilter[dir] = 1;
+        } else {
+            downloadFilter[file] = 1;
         }
-        hash[file] = true;
     }
+
+    // handle modified array
     for (const file of body.modified) {
-        if (!isContentBaseDir(file)) {
+        if (!isInContentBaseDir(file)) {
             const dir = path.parse(file).dir;
-            hash[dir] = true;
-            continue;
+            downloadFilter[dir] = 1;
+        } else {
+            downloadFilter[file] = 1;
         }
-        hash[file] = true;
     }
+
+    // handle deleted array, if in base dir add it to the delete filter, or if the "index.mdx" is deleted else only add it to the filter and in this case means only component got deleted
     for (const file of body.deleted) {
-        if (!isContentBaseDir(file)) {
-            if (path.parse(file).ext !== '.mdx') {
-                const dir = path.parse(file).dir;
-                hash[dir] = true;
+        const fileParsed = path.parse(file);
+        if (!isInContentBaseDir(file)) {
+            const dir = fileParsed.dir;
+            if (fileParsed.ext === ".mdx") {
+                downloadFilter[dir] = 0;
+                deleteFilter.push(dir);
+            } else {
+                // not in the hash or in the hash but was equal 1 => 1 * 1 = 1 will be downloaded because it's not the mdx file
+                // in the hash but equals 0[.mdx file was found] => 1 * 0 = 0 will not be downloaded as we already found the mdx file
+                downloadFilter[dir] = ((downloadFilter[dir] || 1) * 1) as 1 | 0;
             }
+        } else {
+            deleteFilter.push(fileParsed.name);
         }
     }
-    for (const file of body.deleted) {
-        if (!isContentBaseDir(file)) {
-            if (path.parse(file).ext === '.mdx') {
-                const dir = path.parse(file).dir;
-                hash[dir] = false;
-            }
-        }
-    }
-    console.log('hash filter from the req body', hash);
-    return (val: Githubfile): boolean => {
-        return hash[val.path] || false;
+
+    console.log("hash filter from the req body", downloadFilter);
+
+    return {
+        downloadFilterFunction: (val) => {
+            return downloadFilter[val.path] === 1 || false;
+        },
+        deleteFilter,
+        downloadFilter,
     };
 };
-// todo next code to revalidate
+
 const revalidateBlogHome = async () => {
-    // todo change 12 to constant
-    const pagesNumber = (await postsCount()) / 12;
-    const pagePromise: Promise<void>[] = [];
-    for (let i = 1; i <= pagesNumber; ++i) {
-        pagePromise.push(callNextApp(`/blog/${i}`));
-    }
-    await Promise.all(pagePromise);
+    const pagesNumber = Math.ceil(
+        (await postsCount()) / NUMBER_OF_POSTS_IN_A_PAGE,
+    );
+    await Promise.all(
+        [...Array(pagesNumber).keys()].map((i) =>
+            revalidateNextPage(`/blog/${i}`),
+        ),
+    );
 };
 
 /**
  * how the re-validation will work
- * if new file created or file updated download and parse this file from github 
+ * if new file created or file updated download and parse this file from github
  * deleted file only delete it from the db
-*/
-// todo the handler is copy paste from seed main function so you can use the seed function here
+ */
 const handler = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.headers.authorization || !(typeof req.headers.authorization === 'string') || req.headers.authorization !== process.env.SEED_PASS) {
-        return res.status(401).json({ message: "Invalid Token | Not authorized" });
+    if (
+        !req.headers.authorization ||
+        !(typeof req.headers.authorization === "string") ||
+        req.headers.authorization !== process.env.SEED_PASS
+    ) {
+        return res
+            .status(401)
+            .json({ message: "Invalid Token | Not authorized" });
     }
-    console.log('req body', req.body, 'req body type', typeof req.body, 'req body added type', typeof req.body?.added);
-
-    // TODO make the conversion safer because now there's no checking for the body at all, and when this part throw the server crash
-    for (const k in req.body) {
-        // eslint-disable-next-line
-        req.body[k] = JSON.parse(req.body[k]);
-    }
-
-    // remove deleted files from database and revalidate next.js cache
-    for (const deletedPostPath of req.body.deleted as string[]) {
-        let slug!: string;
-        if (isContentBaseDir(deletedPostPath)) {
-            slug = path.parse(deletedPostPath).name;
-        }
-        else {
-            const ext = path.parse(deletedPostPath).ext;
-            if (ext === '.mdx') {
-                slug = path.basename(path.parse(deletedPostPath).dir);
-            }
-        }
-        try {
-            if (slug) {
-                await deletePost(slug);
-                console.log("done deleting");
-                await callNextApp(`/blog/post/${slug}`);
-            }
-        } catch (e) {
-            next(e);
-            return;
-        }
+    if (
+        !req.body.added ||
+        typeof req.body.added !== "string" ||
+        !req.body.modified ||
+        typeof req.body.modified !== "string" ||
+        !req.body.deleted ||
+        typeof req.body.deleted !== "string" ||
+        !req.body.renamed||
+        typeof req.body.renamed !== "string"
+    ) {
+        return res.status(400).json({
+            message:
+                'Invalid Request Body, body MUST contain "added" as string[] stringified, "modified" as string[] stringified, "deleted" as string[] stringified, "renamed" as string[] stringified',
+        });
     }
 
     try {
-        if (req.body.added.length + req.body.modified.length + req.body.deleted.length > 0) {
-            // download, parse and update database with the new created/modified files, and revalidate next cache for each post
-            const rawMdx = await downloadAndParsePosts(createPostsFilter(req.body as RevalidateReqStructure));
-            await Promise.all(rawMdx.map(async (file) => {
+        // TODO make the conversion safer because now there's no checking for the body at all, and when this part throw the server crash
+        for (const k in req.body) {
+            // eslint-disable-next-line
+            req.body[k] = JSON.parse(req.body[k]);
+        }
+
+        const { deleteFilter, downloadFilterFunction } = createPostsFilter(
+            req.body as RevalidateReqStructure,
+        );
+
+        // remove deleted files from database and revalidate next.js cache
+        await Promise.all(deleteFilter.map((slug) => deletePost(slug)));
+        await Promise.all(
+            deleteFilter.map((slug) =>
+                revalidateNextPage(`/blog/post/${slug}`),
+            ),
+        );
+
+        // download, parse, update database with the new created/modified files, and revalidate next cache for each post
+        const rawMdx = await downloadAndParsePosts(downloadFilterFunction);
+        await Promise.all(
+            rawMdx.map(async (file) => {
                 const post = await upsertPost(file);
-                //update cache
                 // add each file already exist tags
                 if (file.meta.categories) {
-                    for (const tag of file.meta.categories) {
-                        await upsertCategoryToPost(tag, post.slug);
-                    }
+                    await Promise.all(
+                        file.meta.categories.map((tag) =>
+                            upsertCategoryToPost(tag, post.slug),
+                        ),
+                    );
                 }
                 // connect posts with autohrs and contributors
                 if (file.meta.contributers) {
                     // create author
                     await upsertUserToPost(file.meta.contributers, post.slug);
                 }
-                await callNextApp(`/blog/post/${post.slug}`);
-            }));
-        }
-        try {
-            await revalidateBlogHome();
-        } catch (e) {
-            next(e);
-            return;
-        }
-        res.status(201).send('done elegantly');
+                await revalidateNextPage(`/blog/post/${post.slug}`);
+            }),
+        );
+        await revalidateBlogHome();
+        res.status(201).send("done elegantly");
     } catch (e) {
         next(e);
         return;
     }
-
 };
+
 export default handler;

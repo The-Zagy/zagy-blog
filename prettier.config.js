@@ -6,7 +6,7 @@ module.exports = {
   jsxSingleQuote: false,
   semi: true,
   trailingComma: "all",
-  tabWidth: 2,
+  tabWidth: 4,
   plugins: [
     require.resolve("prettier-plugin-tailwindcss"),
     require.resolve("@ianvs/prettier-plugin-sort-imports"),
