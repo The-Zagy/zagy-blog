@@ -7,7 +7,7 @@ export const NEXT_SEO_DEFAULT: DefaultSeoProps = {
     openGraph: {
         type: 'website',
         locale: 'en_IE',
-        url: "CHANGE MEE",
+        url: "https://zagy.tech/",
         siteName: 'Zagy blog',
         images: [
             {
@@ -27,11 +27,6 @@ export const NEXT_SEO_DEFAULT: DefaultSeoProps = {
             { url: 'https://serving.photos.photobox.com/220525832dc353515a20d946b9f481fa37247c97d3be6f32fa37fbedfd904f1e87a0d98c.jpg' },
             { url: 'https://serving.photos.photobox.com/220525832dc353515a20d946b9f481fa37247c97d3be6f32fa37fbedfd904f1e87a0d98c.jpg' },
         ],
-    },
-    twitter: {
-        handle: '@handle',
-        site: '@site',
-        cardType: 'summary_large_image',
     },
 
 };
