@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import { getMDXComponent } from "~/utils/mdx-client";
 import MdxComponents from "~/components/mdx-components";
 import Comments from "../../../components/comments/comments";
+import Link from "next/link";
 const GotToTopButton = dynamic(() => import('../../../components/goToTopButton/GoToTopButton'), {ssr: false});
 
 const getPostBySlug = async (slug: string) => {
@@ -75,7 +76,7 @@ const UserCard: React.FC<{
                 className={"rounded-full w-12 h-12"}
             />
             <div>
-                <p className="md:text-xl text-sm ">{userName}</p>
+                <Link href={`/blog/author/${userName}`}><p className="md:text-xl text-sm ">{userName}</p></Link>
                 <div className=" text-gray-500 text-sm">
                     {isValidDateString(createdAt.toString()) && (
                         <time>{dateFormat(new Date(createdAt))}</time>
