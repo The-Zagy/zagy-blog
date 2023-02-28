@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
 .embed-youtube {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 */

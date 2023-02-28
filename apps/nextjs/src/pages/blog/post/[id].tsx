@@ -6,10 +6,11 @@ import { ArticleJsonLd, NextSeo } from "next-seo";
 import { prisma } from "@acme/db";
 import { readAndParsePost } from "@acme/mdx";
 import { AsyncReturnType, dateFormat, isValidDateString } from "@acme/utils";
-
+import dynamic from "next/dynamic";
 import { getMDXComponent } from "~/utils/mdx-client";
 import MdxComponents from "~/components/mdx-components";
 import Comments from "../../../components/comments/comments";
+const GotToTopButton = dynamic(() => import('../../../components/goToTopButton/GoToTopButton'), {ssr: false});
 
 const getPostBySlug = async (slug: string) => {
     return await prisma.post.findFirst({
@@ -58,6 +59,7 @@ async function fileExists(path: string) {
         return false;
     }
 }
+
 
 const UserCard: React.FC<{
     userName: string;
@@ -173,6 +175,7 @@ const PostPage: NextPage<NonNullPostData> = (post) => {
                     </a>
                 </div>
                 <Comments />
+                <GotToTopButton />
             </div>
         </>
     );
