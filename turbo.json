@@ -33,7 +33,6 @@
       "cache": false
     },
     "test": {
-      "dependsOn": ["^build"]
     }
   },
   "globalEnv": [

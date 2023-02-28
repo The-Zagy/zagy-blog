@@ -24,6 +24,7 @@ const deletePost = async (slug: string) => {
             tags: true,
         },
     });
+    console.log(`deleted ${slug}`);
 };
 
 // function to call next app to revalidate pages to new data
@@ -100,18 +101,19 @@ export const createPostsFilter = (
             const dir = fileParsed.dir;
             if (fileParsed.ext === ".mdx") {
                 downloadFilter[dir] = 0;
-                deleteFilter.push(dir);
+                deleteFilter.push(path.parse(dir).name);
             } else {
                 // not in the hash or in the hash but was equal 1 => 1 * 1 = 1 will be downloaded because it's not the mdx file
                 // in the hash but equals 0[.mdx file was found] => 1 * 0 = 0 will not be downloaded as we already found the mdx file
-                downloadFilter[dir] = ((downloadFilter[dir] || 1) * 1) as 1 | 0;
+                downloadFilter[dir] = downloadFilter[dir] === 0 ? 0 : 1;
             }
         } else {
             deleteFilter.push(fileParsed.name);
         }
     }
 
-    console.log("hash filter from the req body", downloadFilter);
+        console.log("🪵 file \"revalidate.ts\" ~  ~ token ~ downloadFilter = ", downloadFilter);
+        console.log("🪵 file \"revalidate.ts\" ~  ~ token ~ deleteFilter = ", deleteFilter);
 
     return {
         downloadFilterFunction: (val) => {
@@ -155,7 +157,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
         typeof req.body.modified !== "string" ||
         !req.body.deleted ||
         typeof req.body.deleted !== "string" ||
-        !req.body.renamed||
+        !req.body.renamed ||
         typeof req.body.renamed !== "string"
     ) {
         return res.status(400).json({
@@ -205,7 +207,7 @@ const handler = async (req: Request, res: Response, next: NextFunction) => {
             }),
         );
         await revalidateBlogHome();
-        res.status(201).send("done elegantly");
+        res.status(201).end();
     } catch (e) {
         next(e);
         return;
