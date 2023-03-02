@@ -45,7 +45,9 @@ type Posts = AsyncReturnType<typeof getPostsByUser>
 export async function getServerSideProps({ params }: { params: { id: string } }) {
     const { id } = params;
     const posts = await getPostsByUser(id);
-
+    if (!posts) return ({
+        notFound: true,
+    });
     const author = await downloadGithubUser(id);
     console.log(author);
     return {

@@ -43,11 +43,11 @@ const GotToTopButton: React.FC = () => {
                 });
             }}
             className={clsx(
-                "dark:shadow-none shadow-sm dark:border-none border  fixed bottom-10 right-8 w-12 h-12 p-1 flex justify-center items-center rounded-full transition-opacity dark:bg-dark-primary-700",
+                "dark:shadow-none bg-blue-400 shadow-sm  fixed bottom-10 right-8 w-12 h-12 p-1 flex justify-center items-center rounded-full transition-opacity dark:bg-dark-primary-700",
                 { "opacity-100": visiable, "opacity-0": !visiable },
             )}
         >
-            <ChevronUpIcon className="w-8 h-8" />
+            <ChevronUpIcon className="w-8 h-8 dark:text-black text-white" />
         </button>
     );
 };
