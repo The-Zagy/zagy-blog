@@ -53,7 +53,7 @@ const PostPage: React.FC<{ post: NonNullType<PostData> }> = ({ post }) => {
 
             <div className="m-auto w-11/12 md:w-4/6 lg:w-3/6 text-xl flex flex-col py-20 gap-y-16 item-center justify-center" >
                 <PostHeader post={post} />
-                <main className="prose lg:prose-xl md:prose-md dark:prose-invert prose-pre:text-xl prose-pre:md:text-base break-words max-w-none" >
+                <main className="prose lg:prose-xl md:prose-md dark:prose-invert prose-pre:md:text-base break-words max-w-none" >
                     <Component components={MdxComponents} />
                 </main>
                 <div className="flex border-b-2 border-gray-50">
