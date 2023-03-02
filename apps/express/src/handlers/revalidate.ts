@@ -133,7 +133,7 @@ const revalidateBlogHome = async () => {
     console.log("🪵 file \"revalidate.ts\" ~  line \"131\" ~ token ~ pagesArr = ", pagesArr);
     await Promise.all(
         pagesArr.map((i) =>
-            revalidateNextPage(`/blog/${i}`)
+            revalidateNextPage(`/blog/${i + 1}`)
         ),
     );
 };
