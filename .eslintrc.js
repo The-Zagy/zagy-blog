@@ -29,7 +29,9 @@ const config = {
         ],
         "@typescript-eslint/no-unsafe-return": [
           "warn"
-        ]
+        ],
+        "@typescript-eslint/ban-ts-comment": ["warn"]
+
       },
     },
   ],

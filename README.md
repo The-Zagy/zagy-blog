@@ -1,8 +1,10 @@
 # Zagy-Blog
 
 why zagy blog
+[for more information about express api](./apps/express/README.md)
+[for more information about nextjs app](./apps/nextjs/README.md)
 
-# Who Are We
+## Who Are We
 
 azzam n nagy = zagy
 
@@ -18,11 +20,7 @@ cache? database? github cms?
 
 ## how we developed it
 
-please make it series in the blog, it will be helpfull for us 
-
-## it's an honer to be your friend thank you
-
-promise i'll do better in the future projects
+please make it series in the blog, it will be helpfull for us
 
 ## next steps
 
