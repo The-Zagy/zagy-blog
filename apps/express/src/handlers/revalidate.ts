@@ -128,9 +128,12 @@ const revalidateBlogHome = async () => {
     const pagesNumber = Math.ceil(
         (await postsCount()) / NUMBER_OF_POSTS_IN_A_PAGE,
     );
+    console.log("🪵 file \"revalidate.ts\" ~  line \"128\" ~ token ~ pagesNumber = ", pagesNumber);
+    const pagesArr = [...Array(pagesNumber).keys()];
+    console.log("🪵 file \"revalidate.ts\" ~  line \"131\" ~ token ~ pagesArr = ", pagesArr);
     await Promise.all(
-        [...Array(pagesNumber).keys()].map((i) =>
-            revalidateNextPage(`/blog/${i}`),
+        pagesArr.map((i) =>
+            revalidateNextPage(`/blog/${i}`)
         ),
     );
 };
