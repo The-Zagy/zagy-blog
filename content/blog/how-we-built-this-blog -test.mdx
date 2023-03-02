@@ -1,0 +1,159 @@
+---
+title: How we built this blog
+date: 2023-2-12
+description: 
+    How we made a kendcdodds inspired blog with t3 stack
+bannerUrl: 
+    https://wallpaperaccess.com/full/3238251.jpg
+categories:
+  - react
+  - nextjs
+  - monorepo
+  - fullstack
+  - typescript
+  - express
+
+meta:
+  keywords:
+    - react
+    - nextjs
+    - t3
+    - t3 stack
+    - monorepo
+    - turporepo 
+    - giscus
+    - mdx
+    - typescript
+    - fullstack-javascript
+    - trpc
+    - express
+
+ 
+---
+Like every web developer out there, we made our own personalized blog to write about tech. and here's your standard how I wrote this
+blog post, also you can find the code to the entire blog [here](https://github.com/The-Zagy/zagy-blog)
+
+
+
+### My first thoughts
+I found the idea of type safety across the backend and the frontend fascinating that's why I went with [Create T3 App](https://create.t3.gg/).
+I don't have much client side fetching so I didn't really make use of trpc that much but it was still nice to have
+My first thought was to create an admin dashboard to manage, edit and create blog posts. this dashboard would contain some kind of WYSIWYG editor,
+but I soon changed my mind when I first knew about MDX.
+<Quote author="MDXjs website" href="https://mdxjs.com/">
+  MDX allows you to use JSX in your markdown content. You can import components,
+   such as interactive charts or alerts, and embed them within your content.
+    This makes writing long-form content with components a blast. 🚀
+</Quote>
+in fact, the quoted message you've just seen is only possible thanks to MDX.
+I also really liked the idea of leeching onto Github and using it as a CMS, and thus the idea of developing my dashboard died,
+also this came with lots of benefits like:
+- Other people can suggest edits or fix typos if they want.
+- Having version control over the content.
+- The weird flex of having Github as your CMS.
+
+This also came with the problem of syncing the content of Github with the content on the blog.
+  
+### Tech stack
+
+As mentioned we used Create T3 App which comes setup with:
+  
+- Prisma: This is an ORM that works very well with typescript
+- Nextjs: You know what Nextjs is
+- Tailwind: Got to say after using Tailwind there's no coming back to vanilla CSS or even any flavor of preprocessed CSS
+- NextAuth: We never actually used this because all the procedures in the blog are public, but it's nice to have if we wanted to add
+ anything that requires creating an account in the future
+- TRPC: Some typescript fuckery that makes sharing types around your app a piece of cake.
+
+<Callout type="note">
+  We've also come to add Turborepo, `pnpm` and `express` to make a `monorepo` check 
+ [Why monorepo](#why-monorepo)
+</Callout>
+Less crucial stuff but deserves a mention nonetheless:
+- Octakit: makes communicating with Github's API as easy as calling a function
+- Giscus: a cool package to continue leeching on Github, it maps a Github discussion thread to URLs in your site, and makes
+an iframe to let you see those comments on your website, effectively "adding" comments to your website 
+- NextThemes and NextSeo: Makes managing those two that much easier
+### The process
+The process of the whole blog is fairly simple, there is an express server actively listening for changes on the /blog/content on github
+express server gets notified through a workflow and begins parsing the newly added `mdx` files.
+Through [mdx-bundler](https://github.com/kentcdodds/mdx-bundler) and some other plugins in the [unified](https://unifiedjs.com) ecosystem
+those plugins allow you to add customized parsing to your markdown content, for example the youtube embed below was just a normal link
+but through plugins it transfroms into an embed, you can also bulid your own plugins it's relatively easy to get started
+
+https://www.youtube.com/watch?v=s9oQRKsROF8
+
+the metadata gets extracted like the post title, description and slug, also the .mdx file gets converted to a string of code, react code to specific and then `express` stores these information
+in the database and notifies nextjs server that new content with the extracted slugs exists so it can revalidate those pages if the exist.   
+
+### Behind the scenes
+  First when any post changes in any way names of the files changed get sent to the express server, through Github actions
+
+  ```yaml  {7} 
+- name: Send a request to revalidate those files
+ if: steps.files.outputs.any_modified == 'true'
+ uses: fjogeleit/http-request-action@v1
+ with:
+   url: "${{secrets.REVALIDATOR_URL}}"
+   method: "POST"
+   customHeaders: '{"Content-Type": "application/json","Authorization":"${{secrets.SEED_PASS}}"}'
+   data: '{"added":"${{steps.files.outputs.added_files}}", "deleted": "${{steps.files.outputs.deleted_files}}", "modified": "${{steps.files.outputs.modified_files}}", "renamed": "${{steps.files.outputs.renamed_files}}"}'
+   timeout: 1200000
+  ```
+then the express server updates the database with the new information and then calls the Next app to inform of the new information
+```ts 
+//in express
+await axios.post(url + 'api/revalidate/', {id},
+ {
+    headers: {
+       'Content-Type': 'application/json',
+       'Authorization': process.env.SECRET,
+    }
+});
+```
+and finally the Next app receives the request and updates the visible content to the user
+
+```ts 
+//in next /api/revalidate
+if (req.body && req.body.filePath) await res.revalidate(req.body.id);
+else throw new Error("Body wasn't provided with correct data");
+res.end();
+```
+
+### The syncing problem
+When it boils down to it, the app consists of 2 pieces:
+- The actual Nextjs application 
+- The revalidator that updates the content on the database to keep in sync with the content on Github
+and then informs the Nextjs application through a call to /api/revalidate with the page url to update
+
+Now a good question would be why do you need the express server? couldn't you do the work the server does in Next's /api/revalidate route?
+The answer to those two questions is yes and no:
+Yes I can do that on the next app but there's a problem, I'm on the free plan on Vercel which means that any request has a timeout
+of 10 seconds only, if you exceed those 10 seconds in any request you'll be greeted with this message with your request failing:
+
+<Quote author="Vercel on free tier">
+  Task timed out after 10.01 seconds 😭😭😭
+</Quote>
+
+so me being a currently broke unemployed student, I had to find a workaround, the workaround was to create a web server to do the heavy
+working for me and only call nextjs when I absolutely need to, in this case when asking it to revalidate the page using
+`res.revalidate(url)` which is called [On-demand revalidation](https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration#on-demand-revalidation)
+thus utilizing the incremental static regeneration feature of Nextjs and not needing to rebuild the entire Nextjs app whenever some content changes 
+I deployed the web server on Heroku using the 156$ credits given to me by [Github](https://education.github.com/pack)
+
+### Why monorepo
+Because Express and Next share the same database schema and some utilities, I wanted to keep things as DRY as I can.
+Also, this will make things easier for me if I wanted to extend the blog in the future, make a react native app for example.
+I first tried using NX which was a pain in the ass to use, also the documentation was unhelpful in my opinion.
+then I tried Turborepo and everything worked like a piece of cake. you can follow [this](https://www.jumr.dev/blog/t3-turbo) guide if you want to transform an app
+created with create-t3-app to a monorepo with turbo repo.
+
+### Why do you need a database
+Because Github times you out if you make too many requests, and also because I wanted to make more complicated queries on posts
+and tags but who knows maybe I will find a better approach in the future.
+
+### Concolusion
+If you want a build a portofolio blog definietly consider using MDX 
+
+
+
