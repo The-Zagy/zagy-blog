@@ -9,6 +9,7 @@
         "clean": "rm -rf .turbo node_modules",
         "lint": "eslint",
         "build": "tsup index.ts --format esm --dts",
+        "dev": "echo \"WATCHING MDX\" && pnpm build --watch",
         "type-check": "tsc --noEmit"
     },
     "dependencies": {

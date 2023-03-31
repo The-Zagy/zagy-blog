@@ -10,11 +10,13 @@
     "clean": "rm -rf .turbo node_modules",
     "lint": "eslint",
     "build":"tsup index.ts --format esm --dts",
+    "dev": "echo \"WATCHING api\" && pnpm build --watch",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@acme/auth": "*",
     "@acme/db": "*",
+    "@acme/mdx": "*",
     "@trpc/client": "^10.9.0",
     "@trpc/server": "^10.9.0",
     "superjson": "1.9.1",
