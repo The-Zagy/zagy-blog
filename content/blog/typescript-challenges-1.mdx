@@ -1,0 +1,194 @@
+---
+title: Typescript Challenges (#1)
+date: 2023-6-16
+description: Distributive conditional types in typescript
+bannerUrl: https://www.art.salon/images/jan-kubicek_permutation-system_AID339584.jpg?f=grey
+categories:
+    - typescript
+
+meta:
+    keywords:
+        - typescript
+        - distributive conditional types
+        - conditional types
+---
+
+In the TypeScript Challenges series, I explore various challenges from the [ts-challenges](https://github.com/type-challenges/type-challenges) repository on GitHub.
+Each article focuses on a specific challenge and provides an explanation of the solution.
+Today's challenge is the [Cartesian Product](https://github.com/type-challenges/type-challenges/blob/main/questions/27862-medium-cartesianproduct/README.md) challenge, which can be found here.
+I encourage you to attempt the challenge yourself before proceeding with the explanation.
+
+---
+
+# Problem description
+
+Given 2 sets (unions), return its Cartesian product in a set of tuples, e.g.
+
+Ex:
+
+```ts
+CartesianProduct<1 | 2, "a" | "b">;
+// [1, 'a'] | [2, 'a'] | [1, 'b'] | [2, 'b']
+```
+
+So basically take every item from first union with every item from the second union, pretty straight forward.
+
+---
+
+# Solution
+
+```ts
+type CartesianProduct<T, U> = T extends T
+    ? U extends U
+        ? [T, U]
+        : never
+    : never;
+```
+
+The solution is sourced from this [issue](https://github.com/type-challenges/type-challenges/issues/28095).
+However, to fully understand the solution, there is one crucial piece of knowledge that is not explicitly explained.
+
+Lets dissect the solution piece and by piece and explain what that piece of knowledge is along the way,
+first look at this `Union` type. You can see that it takes a generic that takes `T`,and does a conditional type check but WTF does that `T extends T` do?
+Well that's **_distributive conditional types_** at play.
+
+---
+
+## Distributive Conditional Types
+
+According to the documentation
+
+<Quote
+    author="Idk, some nerd from the typescript team probably"
+    href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types"
+>
+    In instantiations of a distributive conditional type T extends U ? X : Y,
+    references to T within the conditional type are resolved to individual
+    constituents of the union type (i.e. T refers to the individual constituents
+    after the conditional type is distributed over the union type).
+</Quote>
+
+That's definietly a mouthful but it's actually saying something very simple, that to evaluate `F<A | B>`, you should evaluate `F<A> | F<B>`. In other words you can
+say that every member of the union is **distributed** that a T represent an individual member at a time. so basically when ever you pass a union to a generic, you can imagine
+that every member of that union will be evaluated individually and the results will finally be unionized.
+
+I'll take an example from [Matt Pocock's workshop repo](https://github.com/total-typescript/type-transformations-workshop/blob/main/src/04-conditional-types-and-infer/28-distributive-conditional-types.problem.ts) that will use this concept to solve a problem.
+
+```ts twoslash
+type Expect<T extends true> = T;
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+    ? 1
+    : 2
+    ? true
+    : false;
+
+// ---cut---
+// @errors: 2344
+type Fruit = "apple" | "banana" | "orange";
+
+type AppleOrBanana = Fruit extends "apple" | "banana" ? Fruit : never;
+
+type tests = [Expect<Equal<AppleOrBanana, "apple" | "banana">>];
+```
+
+Let's examine the example, first to to clear up any confusion, `Expect` and `Equal<T1,T2>` are just utility types to test T1 is T2.In this case, we expect `AppleOrBanana`
+to be `apple|banana`. However, as you can see, that's not the case here. If you hover over `AppleOrBanana` you'll discover that it's actually of type `never`.  
+The reasoning behind this is actually straight forward type `Fruit` is a superset of `"apple"|"banana"` so the conditional `extends` falls into the second branch, the `never` branch
+,if you want more details about you can check this article [here](https://www.zagy.tech/blog/post/typescript-extends-is-weird).
+Now, the question is,
+how can we achieve the desired behavior of extracting `"apple"|"banana"` from the type `Fruit`?
+The answer lies in the concept of **Distributive Conditional Types** Let's explore this further.
+
+```ts twoslash
+type Expect<T extends true> = T;
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+    ? 1
+    : 2
+    ? true
+    : false;
+
+// ---cut---
+type Fruit = "apple" | "banana" | "orange";
+
+type GetAppleOrBanana<T> = T extends "apple" | "banana" ? T : never;
+
+type AppleOrBanana = GetAppleOrBanana<Fruit>;
+
+type tests = [Expect<Equal<AppleOrBanana, "apple" | "banana">>];
+```
+
+Now you might be wondering, why does this approach work? We haven't made significant changes;
+we're just passing the type Fruit as a parameter to this generic type.
+This shouldn't make a difference compared to directly using it like `type AppleOrBanana = Fruit extends "apple" | "banana" ? Fruit : never;`, right?
+
+I completely understand your confusion,
+as it also puzzled me the first time I encountered this. Let's explore how distributive conditional types solve this problem.
+
+As mentioned earlier, `T<A|B>` is evaluated as `T<A> | T<B>`. Let's substitute the parameters into our type and see how it evaluates:
+
+`GetAppleOrBanana<Fruit> => GetAppleOrBanana<"apple" | "banana" | "orange"> => GetAppleOrBanana<"apple"> | GetAppleOrBanana<"banana"> | GetAppleOrBanana<"orange">`
+
+By applying the distributive conditional types, we are effectively generating separate branches for each member of the union type.
+This allows us to capture and process each possible value individually.
+Consequently, we obtain the desired result by expanding the type based on the elements within the union.
+
+```ts twoslash
+type Expect<T extends true> = T;
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+    ? 1
+    : 2
+    ? true
+    : false;
+
+// ---cut---
+type Fruit = "apple" | "banana" | "orange";
+
+type GetAppleOrBanana<T> = T extends "apple" | "banana" ? T : never;
+type Apple = GetAppleOrBanana<"apple">;
+type Banana = GetAppleOrBanana<"banana">;
+type Orange_NEVER = GetAppleOrBanana<"orange">;
+type AppleOrBanana = Apple | Banana | Orange_NEVER;
+
+type tests = [Expect<Equal<AppleOrBanana, "apple" | "banana">>];
+```
+
+Now, let's revisit our initial problem and examine a simplified version of the answer. The Union type we encounter takes a union type as input and returns each member of the union as a tuple containing only itself. With our understanding of distributive conditional types, the purpose of this type becomes apparent.
+The comment says it all: `// Union<2 | 3> -> [2] | [3].`
+
+```ts twoslash
+// Union<2 | 3> -> [2] | [3]
+type Union<T> = T extends T ? [T] : never;
+```
+
+The solution to the problem actually takes this a level further, lets plug in the parameters into the type to make sure that we fully understand what it does.
+
+```ts
+type CartesianProduct<T, U> = T extends T
+    ? U extends U
+        ? [T, U]
+        : never
+    : never;
+```
+
+Let `T=1|2` and `U = "a"|"B"` the type actually evaluates to
+
+```ts twoslash
+type CartesianProduct<T, U> = T extends T
+    ? U extends U
+        ? [T, U]
+        : never
+    : never;
+// ---cut---
+type T1 = CartesianProduct<1, "a">;
+type T2 = CartesianProduct<2, "a">;
+type T3 = CartesianProduct<1, "b">;
+type T4 = CartesianProduct<2, "b">;
+type Result = T1 | T2 | T3 | T4;
+```
+
+# Conclusion
+
+Distributive Conditional Types might seem like a foriegn concept at first but I hope this article made things a tad bit clearer for you.
