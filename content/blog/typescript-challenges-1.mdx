@@ -15,9 +15,13 @@ meta:
 
 In the TypeScript Challenges series, I explore various challenges from the [ts-challenges](https://github.com/type-challenges/type-challenges) repository on GitHub.
 Each article focuses on a specific challenge and provides an explanation of the solution.
-Today's challenge is the [Cartesian Product](https://github.com/type-challenges/type-challenges/blob/main/questions/27862-medium-cartesianproduct/README.md) challenge, which can be found here.
+Today's challenge is the [Cartesian Product](https://github.com/type-challenges/type-challenges/blob/main/questions/27862-medium-cartesianproduct/README.md) challenge.
 I encourage you to attempt the challenge yourself before proceeding with the explanation.
 
+<Callout type="note">
+    Try hovering on codeblocks, most of them have type annotations just like
+    your IDE.
+</Callout>
 ---
 
 # Problem description
@@ -37,7 +41,7 @@ So basically take every item from first union with every item from the second un
 
 # Solution
 
-```ts
+```ts twoslash
 type CartesianProduct<T, U> = T extends T
     ? U extends U
         ? [T, U]
@@ -49,7 +53,7 @@ The solution is sourced from this [issue](https://github.com/type-challenges/typ
 However, to fully understand the solution, there is one crucial piece of knowledge that is not explicitly explained.
 
 Lets dissect the solution piece and by piece and explain what that piece of knowledge is along the way,
-first look at this `Union` type. You can see that it takes a generic that takes `T`,and does a conditional type check but WTF does that `T extends T` do?
+first look at this `CartesianProduct` type. You can see that it takes a generic that takes `T`,and does a conditional type check but WTF does that `T extends T` and `U extends U` do?
 Well that's **_distributive conditional types_** at play.
 
 ---
@@ -98,7 +102,7 @@ The reasoning behind this is actually straight forward type `Fruit` is a superse
 ,if you want more details about you can check this article [here](https://www.zagy.tech/blog/post/typescript-extends-is-weird).
 Now, the question is,
 how can we achieve the desired behavior of extracting `"apple"|"banana"` from the type `Fruit`?
-The answer lies in the concept of **Distributive Conditional Types** Let's explore this further.
+The answer lies in the concept of **Distributive Conditional Types** Let's explore this further by looking at the code below.
 
 ```ts twoslash
 type Expect<T extends true> = T;
@@ -128,7 +132,7 @@ as it also puzzled me the first time I encountered this. Let's explore how distr
 
 As mentioned earlier, `T<A|B>` is evaluated as `T<A> | T<B>`. Let's substitute the parameters into our type and see how it evaluates:
 
-`GetAppleOrBanana<Fruit> => GetAppleOrBanana<"apple" | "banana" | "orange"> => GetAppleOrBanana<"apple"> | GetAppleOrBanana<"banana"> | GetAppleOrBanana<"orange">`
+`GetAppleOrBanana<Fruit> = GetAppleOrBanana<"apple" | "banana" | "orange"> = GetAppleOrBanana<"apple"> | GetAppleOrBanana<"banana"> | GetAppleOrBanana<"orange">`
 
 By applying the distributive conditional types, we are effectively generating separate branches for each member of the union type.
 This allows us to capture and process each possible value individually.
@@ -151,8 +155,12 @@ type Apple = GetAppleOrBanana<"apple">;
 type Banana = GetAppleOrBanana<"banana">;
 type Orange_NEVER = GetAppleOrBanana<"orange">;
 type AppleOrBanana = Apple | Banana | Orange_NEVER;
+type AppleOrBananaWithTheUnion = GetAppleOrBanana<"apple" | "banana">;
 
-type tests = [Expect<Equal<AppleOrBanana, "apple" | "banana">>];
+type tests = [
+    Expect<Equal<AppleOrBanana, "apple" | "banana">>,
+    Expect<Equal<AppleOrBanana, AppleOrBananaWithTheUnion>>,
+];
 ```
 
 Now, let's revisit our initial problem and examine a simplified version of the answer. The Union type we encounter takes a union type as input and returns each member of the union as a tuple containing only itself. With our understanding of distributive conditional types, the purpose of this type becomes apparent.
@@ -181,12 +189,26 @@ type CartesianProduct<T, U> = T extends T
         ? [T, U]
         : never
     : never;
+
+type Expect<T extends true> = T;
+
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y
+    ? 1
+    : 2
+    ? true
+    : false;
 // ---cut---
 type T1 = CartesianProduct<1, "a">;
 type T2 = CartesianProduct<2, "a">;
 type T3 = CartesianProduct<1, "b">;
 type T4 = CartesianProduct<2, "b">;
 type Result = T1 | T2 | T3 | T4;
+type ResultWithUnions = CartesianProduct<1 | 2, "a" | "b">;
+
+type tests = [
+    Expect<Equal<Result, [1, "a"] | [2, "a"] | [1, "b"] | [2, "b"]>>,
+    Expect<Equal<Result, ResultWithUnions>>,
+];
 ```
 
 # Conclusion
